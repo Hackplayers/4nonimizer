@@ -26,7 +26,7 @@ Currently it supports the following VPN providers:
 
 \- TorGuard <https://torguard.net/>
 
-\- VPNBook (por defecto) <http://www.vpnbook.com/>
+\- VPNBook (by default) <http://www.vpnbook.com/>
 
 \- VPNGate <http://www.vpngate.net/en/>
 
