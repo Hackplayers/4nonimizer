@@ -76,7 +76,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 \- Execute 'source 4nonimizer' to activate autocompletation of parameters.
 
-# Versiones
+# Versions
 
 \- 1.0-beta codename .bye-world! 5/10/2016
 
