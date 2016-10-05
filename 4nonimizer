@@ -318,7 +318,7 @@ function uninstall () {
 
 function reinstall () {
 	uninstall
-	#git clone https://vmotos@bitbucket.org/charly837/4nonimizer.git
+	git clone https://github.com/Hackplayers/4nonimizer.git
 	install
 }
 
