@@ -78,8 +78,8 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 # References
 
-\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html
-\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html
+\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html  
+\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html  
 
 # Versions
 
@@ -178,8 +178,8 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 
 # Referencias
 
-\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html
-\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html
+\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html  
+\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html  
 
 # Versiones
 
