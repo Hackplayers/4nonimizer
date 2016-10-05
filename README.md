@@ -74,7 +74,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 # Extras
 
-\- Execute 'source 4nonimizer' to activate autocompletation of parameters.
+\- Execute 'source 4nonimizer' to activate autocompletation of parameters.  
 \- Copy .conkyrc in your home directory to load a 4nonimizer template and execute conky.  
 
 # References
@@ -175,7 +175,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 
 # Extras
 
-\- Ejecuta 'source 4nonimizer' para habilitar el autocompletado de parámetros.
+\- Ejecuta 'source 4nonimizer' para habilitar el autocompletado de parámetros.  
 \- Copia .conkyrc en tu directorio home para cargar la plantila de 4nonimizer y ejecuta conky.  
 
 # Referencias
