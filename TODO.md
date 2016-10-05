@@ -3,8 +3,8 @@
 #NEW FEATURES
 
 \- Add Docker compatibility  
-\- Alarm if the real IP is used  
+\- Generate an alarm if the real IP is used (because tun interface is down) 
 
 #HISTORY
 
-\- 05/10/2016 - 
+\- 05/10/2016 - Initial release v1.0-beta 
