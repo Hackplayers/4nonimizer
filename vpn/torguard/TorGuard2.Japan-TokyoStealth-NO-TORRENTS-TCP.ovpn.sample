@@ -1,0 +1,26 @@
+client
+dev tun
+proto tcp
+nobind
+remote-random
+remote 50.31.252.21 443
+remote 50.31.252.44 443
+remote 50.31.252.65 443
+ca ca.crt
+auth-user-pass pass.txt pass.txt
+remote-cert-tls server
+cipher BF-CBC
+resolv-retry 5
+tun-mtu 48000
+fragment 0
+mssfix 0
+route-delay 5 30
+ping-restart 0
+keepalive 5 30
+comp-lzo
+mute-replay-warnings
+sndbuf 393216
+rcvbuf 393216
+push "sndbuf 393216"
+push "rcvbuf 393216"
+scramble obfuscate WSyjLSiYjUIhOUcFpplm

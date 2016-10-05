@@ -1,0 +1,14 @@
+[Unit]
+Description=Starting 4nonimizer
+After=syslog.target network.target local-fs.target
+
+[Service]
+Type=forking
+ExecStart=/opt/4nonimizer/4nonimizer start
+ExecStop=/opt/4nonimizer/4nonimizer stop
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

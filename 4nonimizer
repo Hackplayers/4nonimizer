@@ -1,0 +1,446 @@
+#!/bin/bash
+# Authors: vicente motos & carlos antonini
+
+function asciilogo {
+version="1.0-beta"
+
+clear
+CYAN='\e[34m'
+WHITE='\e[37m'
+GREEN='\e[32m'
+RED='\e[31m'
+NC='\e[0m'
+
+echo ""
+echo -e "${CYAN}           ___                   _           _"
+echo -e "${CYAN}          /   |                 (_)         (_)"
+echo -e "${CYAN}         / /| |_ __   ___  _ __  _ _ __ ___  _ _______ _ __"
+echo -e "${CYAN}        / /_| | '_ \ / _ \| '_ \| | '_  \` _ | |_  / _ \ '__|"
+echo -e "${CYAN}        \___  | | | | (_) | | | | | | | | | | |/ /  __/ |"
+echo -e "${CYAN}            |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|"
+echo -e "${RED}                                           By Carlos Antonini & Vicente Motos${NC}"
+echo -e "${RED}                                           Version: $version${NC}"
+echo ""
+}
+
+function checkifinstalled () {
+if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
+	exit 1
+fi
+}
+
+
+function start () {
+	IP_provider1=$(curl icanhazip.com 2> /dev/null)
+	asciilogo
+	checkifinstalled
+	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
+	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
+	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
+	cd /opt/4nonimizer/vpn/vpnbook/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
+	systemctl start tor
+	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	while [ -z $comprobacion ] ; do
+		for i in {0..1..30}; 
+			do echo -en "."; 
+			((count1=count1+1));  
+			if [ $count1 -eq 30 ];  then
+				clear
+				echo -ne "\n${RED}[+]${NC} There is a problem starting openvpn. Please, check nohup.out for details\n\n"
+				current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+				tail -n 30 /opt/4nonimizer/vpn/$current_provider/nohup.out
+				echo ""
+				exit 1
+			fi
+			sleep 1;  
+		done
+		comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	done
+	count2=5
+	until [ $count2 -le 0 ]
+	do
+	clear
+	asciilogo
+	echo -ne "\n${GREEN}[+]${NC} Enter \"T\" if you want to log all IPs used through TOR (using proxychains) or wait $count2 secs for logging only VPN ips..." 
+        ((count2--))
+	read -s -n 1 -t 1 key
+
+	  if [ $count2 -eq 0 ]
+	    then
+		clear
+		asciilogo
+		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..." 
+		start_logs_vpn
+		echo -ne "ok. \n" && sleep 3
+	       break
+	  fi     
+
+	  if [ "$key" == "T" ]; then
+		clear
+		asciilogo
+		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN+TOR)..." 
+		start_logs_vpn
+		start_logs_tor
+		echo -ne "ok. \n" && sleep 3
+		break
+	  fi
+	  
+	done
+	IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	while [ $IP_provider1 = $IP_provider2 ] ; do 
+		IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	done
+	vpn_status
+	echo -e "\n${GREEN}[!]${NC} All done!\n"
+}
+
+function stop_nonet () {
+	asciilogo
+	checkifinstalled
+ 	echo -e "\n${RED}[+]${NC} Stopping services\n"
+	systemctl stop tor
+	ps -uax | grep log- | awk '{print $2}' | xargs kill -9
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
+	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+	#ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) down
+	ifconfig $(ls /sys/class/net/ | grep -E '^wl') down 2> /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^en') down 2> /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth') down 2> /dev/null
+	echo -e "\n${RED}[+]${NC} Your network interfaces have been shutdown.\n"
+ 	echo -e "\n${RED}[!]${NC} Done!\n"
+}
+
+function stop () {
+	asciilogo
+	checkifinstalled
+	systemctl stop tor
+	ps -uax | grep log- | awk '{print $2}' | xargs kill -9
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
+	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+	echo -e "\n${GREEN}You can continue browsing using your real IP!!!${NC}\n"
+}
+
+function restart () {
+	stop
+	start
+}
+
+function install () {
+	asciilogo
+	if [  -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+		echo -e "\n${RED}[*]${NC} 4nonimizer is already installed. Perhaps do you want reinstalling or updating the app?\n"
+	exit 1
+	fi
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
+		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		apt-get update
+		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
+		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2
+	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
+		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		pacman -Syu
+		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
+		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2
+	else
+		echo ""
+		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+		exit 1
+		fi     
+	fi
+
+	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
+	cp -r ../4nonimizer /opt/
+	ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
+	cp /opt/4nonimizer/4non.service /etc/systemd/system/
+	chmod +x /opt/4nonimizer/vpn/*/*.sh
+	chmod +x /etc/systemd/system/4non.service
+	mkdir /opt/4nonimizer/logs 2> /dev/null
+	systemctl enable tor 
+	systemctl start tor
+	systemctl enable 4non.service
+        for i in {0..5..1}; do echo -en "."; sleep 1;  done
+	count=5
+	until [ $count -le 0 ]
+	do
+	asciilogo
+	echo -ne "\n${GREEN}[+]${NC} Enter \"A\" if you want to update all vpn profiles, or wait $count secs to update only the default one (VPNbook)..." 
+        ((count--))
+	read -s -n 1 -t 1 key
+
+	  if [ $count -eq 0 ]
+	    then
+		echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (VpnBook)\n"
+	        cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh	
+	       break
+	  fi     
+
+	  if [ "$key" == "A" ]; then
+		clear
+		asciilogo
+		vpn_list
+		echo -e "\n${GREEN}[+]${NC} Preparing update\n"
+		for i in {0..7..1}; do echo -en "."; sleep 1;  done
+		echo -e "\n${GREEN}[+]${NC} Updating all vpn profiles...\n"
+		update_vpns
+		break
+	  fi
+
+	done
+	
+	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
+	asciilogo
+	echo -e "\n${GREEN}[+]${NC} 4nonimizer has been installed. Use '4nonimizer start' or '4nonimizer help'.\n"
+}
+
+function update_vpns () {
+	asciilogo
+	checkifinstalled
+	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for HideMyAss\n"
+	cd /opt/4nonimizer/vpn/hidemyass && ./vpn-get-pass.sh
+	echo -e "\n${GREEN}[+]${NC} Obtaining all available ovpn files for HideMyAss\n"
+	cd /opt/4nonimizer/vpn/hidemyass && ./vpn-get-ovpn.sh
+	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for TorGuard\n"
+	cd /opt/4nonimizer/vpn/torguard && ./vpn-get-pass.sh
+	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for TorGuard\n"
+	sleep 5
+	echo -e "\n${GREEN}[+]${NC} Obtaining all for VPNbook\n"
+	cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
+	echo -e "\n${GREEN}[+]${NC} Obtaining all for VPNgate\n"
+	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-pass.sh
+	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-ovpn.sh	
+	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for vpnkeys\n"
+	cd /opt/4nonimizer/vpn/vpnkeys && ./vpn-get-pass.sh
+	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for vpnkeys\n"
+	sleep 5
+	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for vpnme\n"
+	cd /opt/4nonimizer/vpn/vpnme && ./vpn-get-pass.sh
+	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for vpnme\n"
+	sleep 5
+}
+
+function vpn_list () {
+	num=0
+	echo -e "\n${Green} List of available VPN providers\n"
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			num=`expr $num + 1`
+			if [ -f /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh ] && [ -f /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh ]; then
+				echo "["$num"] - "$lista "(Auto-get OVPN) (Auto-pass Login)"
+			elif [ -f /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh ]; then
+				echo "["$num"] - "$lista "(Auto-pass Login)"
+			elif [ -f /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh ]; then
+				echo "["$num"] - "$lista "(Auto-get OVPN)"
+			else
+				echo "["$num"] - "$lista 
+			fi
+			LISTADO[$num]=$lista
+	done
+	}
+
+function change_provider () {
+	asciilogo
+	checkifinstalled
+	if [ ! -d "/opt/4nonimizer/vpn/" ]; then
+		echo -e "\n${RED} Install 4nonimizer first! (./4nonimizer install)\n${NC}"
+	else				
+		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+		echo -e "\n${GREEN} Currently you're using the $current_provider provider\n${NC}"
+		echo -e "\n${GREEN} Select the new VPN provider to change\n${NC}"
+		vpn_list
+		echo -en "\nNumber > "
+		read new
+		files=$(ls /opt/4nonimizer/vpn/${LISTADO[$new]}/*.ovpn 2> /dev/null | wc -l)
+		if [ "$files" = "0" ] ; then
+			echo -e "\n${RED}[*]${NC} There are not config files for the requested provider. Please, use '4nonimizer update_vpns' first.\n"
+			exit 1
+		fi
+		if [ $current_provider = ${LISTADO[$new]} ] ; then
+			echo -e "\n${RED}You cannot change to the same provider. If you want to change only the ip use '4nonymizer change_ip'${NC}\n"
+			exit 1
+		fi
+		if [ "$new" -lt "$num" ] ; then
+			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+			echo ""
+			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
+			sed -i '40 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sleep 1
+			systemctl stop 4non.service
+			IP_provider1=$(curl icanhazip.com 2> /dev/null)
+			systemctl start 4non.service
+			for i in {0..5..1}; do echo -en "."; sleep 1;  done
+			IP_provider2=$(curl icanhazip.com 2> /dev/null)
+			while [ $IP_provider1 = $IP_provider2 ] ; do 
+				IP_provider2=$(curl icanhazip.com 2> /dev/null)
+ 			done
+			#systemctl status 4non.service
+			vpn_status
+			echo -e "\n${GREEN}[+]${NC} Done!\n"
+		else
+			echo -e "\n${GREEN}[+]${NC} Invalid Option!\n"
+		fi
+	fi
+}
+
+function change_ip () {
+	asciilogo
+	checkifinstalled
+	killall openvpn
+	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
+	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
+	IP_provider1=$(curl icanhazip.com 2> /dev/null)
+	for i in {0..5..1}; do echo -en "."; sleep 1;  done
+	systemctl start 4non.service
+	IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	while [ $IP_provider1 = $IP_provider2 ] ; do 
+		IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	done
+        vpn_status
+        echo -e "\n${GREEN}[!]${NC} Done!"
+}
+
+function uninstall () {
+	asciilogo
+	checkifinstalled
+	echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
+	systemctl stop 4non.service
+	systemctl disable 4non.service
+	systemctl stop tor
+	systemctl disable tor
+	echo -e "\n${GREEN}[+]${NC} Deleting /opt/4nonimizer dir\n"
+	rm -rfv /opt/4nonimizer >& /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5
+	echo -e "${GREEN}[+]${NC} Done! , Bye!\n"
+}
+
+function reinstall () {
+	uninstall
+	#git clone https://vmotos@bitbucket.org/charly837/4nonimizer.git
+	install
+}
+
+function start_logs_vpn () {
+#	IPREAL=172.124.22.55
+	SECS=300
+	sleep 5
+	IPVPN=$(curl icanhazip.com 2> /dev/null)
+
+#	if [ $IPREAL == $IPVPN ] || [ $IPREAL == $IPTOR ]; then
+#	        ifconfig $(ifconfig | grep Ethernet -n3 | egrep -io "1-\w+" | awk -F'-' '{print $2}') down 2> /dev/null
+#	        ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+#	        echo "PRIVACY ALARM!" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
+#	        echo "PRIVACY ALARM!" >> /opt/4nonimizer/logs/log-tor-`date +'%d-%m-%Y'`.log
+#	        exit 1
+#	fi
+	cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.log$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null
+	while true;do echo $IPVPN = `date` >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS ; done &
+}
+
+function start_logs_tor () {
+	SECS=300
+	sleep 5
+	IPTOR=$(proxychains curl icanhazip.com 2> /dev/null)
+	cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.log$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null
+	while true;do echo $IPTOR = `date` >> /opt/4nonimizer/logs/log-tor-`date +'%d-%m-%Y'`.log && sleep $SECS ; done &
+}
+
+function update_app () {
+	asciilogo
+	echo -e "\n${RED}[*]${NC} Updating repository from Git\n"
+	cd /opt/4nonimizer/ ; git pull origin master;
+}
+
+function vpn_status () {
+	asciilogo
+	checkifinstalled	
+	count=5	
+	until [ $count -le 0 ]
+	do
+	clear
+	asciilogo
+	echo -e "\n${GREEN}[+]${NC} We're going to confirm if your browsing IP has changed..."
+	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait $count secs." 
+        ((count--))
+	read -s -n 1 -t 1 key  
+	  if [ "$key" == "T" ]; then	
+		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
+		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+		echo -e "IP: \t\t$(curl -s icanhazip.com)"
+		echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		echo  -e "\nTOR (using proxychains):"
+		proxychains  curl -s icanhazip.com 2> /dev/null
+		proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p'
+		break
+	  fi
+
+	if [ $count -eq 0 ]
+	    then
+		comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+		if [ -z "$comprobacion" ] ;then
+			echo -e "\n${RED}[*]${NC} You're NOT using a tunnel, probably your IP is not masked!!\n"
+			exit 1
+		else 
+			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
+			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+			echo -e "IP: \t\t$(curl -s icanhazip.com)"
+			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+			break
+		fi
+	  fi     
+	done
+}
+
+function autocom ()
+{
+  # Execute manually "source /opt/4nonimizer/4nonimizer" to activate autocomplete parameters function or edit your .bashrc file adding the line
+  local cur
+
+  COMPREPLY=()
+  cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+    *)
+    COMPREPLY=( $( compgen -W 'start stop stop_nonet install reinstall uninstall change change_ip restart update_vpns update_app vpn_status help' $cur ));;
+  esac
+
+  return 0
+}
+
+
+# main exec
+asciilogo
+complete -F autocom -o default 4nonimizer
+
+if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
+	echo -e "\n${RED}[*]${NC} You aren't root , please execute the installer with root permisions\n"
+else
+
+case $1 in
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status)
+		"$1" 
+		;;
+		help|-h|--help)
+		echo "Usage: 4nonymizer <parameter>"
+		echo -e "Example:  4nonimizer ${CYAN}install${NC}"
+		echo ""
+		echo -e "    ${CYAN}install${NC}:  Install the script in run services"
+		echo -e "    ${CYAN}uninstall${NC}: Disable run service and remove app directory"
+		echo -e "    ${CYAN}change_provider${NC}: Change VPN Provider"
+		echo -e "    ${CYAN}change_ip${NC}: Change IP from VPN current"
+		echo -e "    ${CYAN}vpn_status${NC}: Check IP and provider VPN running"
+		echo -e "    ${CYAN}update_vpns${NC}: Update all ovpn of VPNs"
+		echo -e "    ${CYAN}start${NC}: Init the 4nonimizer service"
+		echo -e "    ${CYAN}stop${NC}: Stop the 4nonimizer service"
+		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
+		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
+		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
+		echo -e "    ${CYAN}help${NC}: Help (this screen)"
+		
+		echo "" 
+		;;
+	esac
+
+fi
