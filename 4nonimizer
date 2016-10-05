@@ -22,15 +22,12 @@ echo -e "${RED}                                           By Carlos Antonini & V
 echo -e "${RED}                                           Version: $version${NC}"
 echo ""
 }
-
 function checkifinstalled () {
 if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
 }
-
-
 function start () {
 	IP_provider1=$(curl icanhazip.com 2> /dev/null)
 	asciilogo
