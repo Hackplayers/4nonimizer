@@ -1,0 +1,73 @@
+conky.config = {
+background = true ,
+use_xft = true ,
+xftalpha = 0.8 ,
+update_interval = 5.0 ,
+total_run_times = 0 ,
+own_window = true ,
+own_window_type = "normal" ,
+own_window_transparent = "50" ,
+background = true,
+own_window_argb_visual = true ,
+own_window_argb_value = "100",
+own_window_argb_value = 0,
+own_window_hints = "undecorated,below,skip_taskbar,sticky,skip_pager" ,
+double_buffer = true ,
+draw_shades = true ,
+draw_outline = false ,
+draw_graph_borders = true ,
+stippled_borders = 8 ,
+border_width = 1 ,
+maximum_width = 350 ,
+minimum_width = 300,
+default_color = "darkgrey" ,
+default_shade_color = "black" ,
+default_outline_color = "black" ,
+alignment = "top_right" ,
+gap_x = 4 ,
+gap_y = 4 ,
+no_buffers = true ,
+uppercase = false ,
+cpu_avg_samples = 2 ,
+net_avg_samples = 2 ,
+override_utf8_locale = false ,
+use_spacer = "left"
+}
+
+conky.text = [[
+
+$color
+${color #ffffff}[SYSTEM] ${hr 2}$color
+${color #ffffff}UPTIME: $color ${uptime}
+
+${color #ffffff}[CPU] ${hr 2}$color
+$cpu% ${color ffcf00} ${cpubar 6}$color
+
+${color #ffffff}[MEMORY] ${hr 2}$color
+${color #ffffff}RAM Used: $color${mem}
+${color #ffffff}RAM Free: $color${memfree}/ ${memmax}
+${color #ffffff}RAM:$color $memperc% ${color ffcf00} ${membar 6}$color
+
+${color #ffffff}NAME PID CPU% MEM%$color
+${font GE Inspira:size=10}${color #ffffff}${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}
+${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}
+${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}
+${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}
+${top name 5} ${top pid 5} ${top cpu 5} ${top mem 5}$color$font
+
+${color #ffffff}[ETHERNET INTERFACE] ${hr 2}$color
+${color #ffffff}ETH0 Down: $color${downspeed eth0}${alignr}${downspeedgraph eth0 15,110 ffffff CAF200 -t}
+${color #ffffff}ETH0 Up: $color${upspeed eth0}${alignr}${upspeedgraph eth0 15,110 ffffff CAF200 -t}
+${color #ffffff}IP: $color${addr eth0}${alignr}
+
+${color #ffffff}[VPN INTERFACE] ${hr 2}$color
+${color #ffffff}TUN Down: $color${downspeed tun1}${alignr}${downspeedgraph tun1 15,110 ffffff CAF200 -t}
+${color #ffffff}TUN Up: $color${upspeed tun1}${alignr}${upspeedgraph tun1 15,110 ffffff CAF200 -t}
+${color #ffffff}IP(internal): $color${addr tun1}${alignr}
+${color #ffffff}IP(External): $color${execi 1 curl icanhazip.com 2> /dev/null '{print $1}'}${alignr}
+${color #ffffff}Country: $color${execi 1 curl ipinfo.io 2> /dev/null | grep "country" | awk -F'"' '{print $4}'}${alignr}
+
+${color #ffffff}[TOR CONNECTION] ${hr 2}$color
+${color #ffffff}TOR IP: $color${color #CAF200}${execi 1 proxychains curl ipinfo.io 2> /dev/null | grep "ip" | awk -F '"' '{print $4}'}${alignr}$color
+${color #ffffff}Country: $color${color #CAF200}${execi 1 proxychains curl ipinfo.io 2> /dev/null | grep "country" | awk -F'"' '{print $4}'}${alignr}$color
+]]
