@@ -76,6 +76,11 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 \- Execute 'source 4nonimizer' to activate autocompletation of parameters.
 
+# References
+
+\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html
+\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html
+
 # Versions
 
 \- 1.0-beta codename .bye-world! 5/10/2016
@@ -170,6 +175,11 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 # Extras
 
 \- Ejecuta 'source 4nonimizer' para habilitar el autocompletado de parámetros.
+
+# Referencias
+
+\- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html
+\- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html
 
 # Versiones
 
