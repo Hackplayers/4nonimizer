@@ -1,10 +1,10 @@
-BUGS
+#BUGS
 
-NEW FEATURES
+#NEW FEATURES
 
-- Add Docker compatibility
-- Alarm if the real IP is used
+\- Add Docker compatibility  
+\- Alarm if the real IP is used  
 
-HISTORY
+#HISTORY
 
-- dd/mm/yyyy - 
+\- 05/10/2016 - 
