@@ -37,7 +37,7 @@ function start () {
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
 	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
-	cd /opt/4nonimizer/vpn/vpnbook/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/torguard/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
@@ -406,6 +406,28 @@ function autocom ()
   return 0
 }
 
+function privoxy ()
+{
+	asciilogo
+	echo -e "\n${RED}[*]THIS FUNCTIONALITY IS BETA MAY CONTAIN ERRORS${nc}\n"
+	checkifinstalled
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
+		if [  -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+			/usr/sbin/privoxy /etc/privoxy/config
+			systemctl enable privoxy.service
+			netstat -putona | grep -v grep | grep privoxy --color
+		else
+			apt-get install privoxy
+			/usr/sbin/privoxy /etc/privoxy/config
+			systemctl enable privoxy.service
+			netstat -putona | grep -v grep | grep privoxy --color
+		fi
+	else
+                echo ""
+                echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+                exit 1
+        fi
+}
 
 # main exec
 asciilogo
@@ -416,7 +438,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -434,6 +456,7 @@ case $1 in
 		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
+		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy with port 8118 (BETA)"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
