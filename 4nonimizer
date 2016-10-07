@@ -409,7 +409,7 @@ function autocom ()
 function privoxy ()
 {
 	asciilogo
-	echo -e "\n${RED}[*]THIS FUNCTIONALITY IS BETA MAY CONTAIN ERRORS${nc}\n"
+	echo -e "\n${RED}[*]THIS FUNCTIONALITY IS BETA MAY CONTAIN ERRORS${NC}\n"
 	checkifinstalled
 	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
 		if [  -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
