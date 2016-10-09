@@ -81,6 +81,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 \- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html  
 \- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html  
+\- http://www.redeszone.net//2016/10/07/4nonimizer-te-permitira-automatizar-la-conexion-diferentes-vpn-anonimizar-ip/  
 
 # Versions
 
@@ -182,6 +183,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 
 \- http://www.hackplayers.com/2016/08/tuto-enmascarar-ip-linux-vpn-tor.html  
 \- http://www.hackplayers.com/2016/10/4nonimizer-un-script-para-anonimizar-ip.html  
+\- http://www.redeszone.net//2016/10/07/4nonimizer-te-permitira-automatizar-la-conexion-diferentes-vpn-anonimizar-ip/  
 
 # Versiones
 
