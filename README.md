@@ -135,7 +135,31 @@ Este script tiene compatibilidad completa con Kali Linux, aunque ha sido probado
 
 Una vez instalado 4nonimizer, introduce el comando **4nonimizer help** para obtener la ayuda, la cual nos muestra todos los parámetros disponibles:
 
-![Alt text](./images/help.png)
+Once installed 4nonymizer, enter the command **4nonimizer help** to get the help, which shows all the available parameters:
+
+           ___                   _           _
+          /   |                 (_)         (_)
+         / /| |_ __   ___  _ __  _ _ __ ___  _ _______ _ __
+        / /_| | '_ \ / _ \| '_ \| | '_  ` _ | |_  / _ \ '__|
+        \___  | | | | (_) | | | | | | | | | | |/ /  __/ |
+            |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|
+                                           By Carlos Antonini & Vicente Motos
+                                           Version: 1.0-beta
+
+Usage: 4nonymizer **\<parameter\>**  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**uninstall**: Disable run service and remove app directory  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**change_provider**: Change VPN Provider  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**change_ip**: Change IP from VPN current  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**vpn_status**: Check IP and provider VPN running  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**update_vpns**: Update all ovpn of VPNs  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**start**: Init the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**stop**: Stop the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**stop_nonet**: Stop the 4nonimizer service and shutdown network interfaces  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**restart**: Restart the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**update_app**: Update this program via git  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**privoxy**: Install and configure privoxy with port 8118 (BETA)  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
 
 
