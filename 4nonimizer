@@ -209,6 +209,9 @@ function update_vpns () {
 	echo -e "\n${GREEN}[+]${NC} Obtaining all for VPNgate\n"
 	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-pass.sh
 	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-ovpn.sh	
+	echo -e "\n${GREEN}[+]${NC} Obtaining all for FreeVPN\n"
+	cd /opt/4nonimizer/vpn/freevpn && ./vpn-get-pass.sh
+	cd /opt/4nonimizer/vpn/freevpn && ./vpn-get-ovpn.sh	
 	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for vpnkeys\n"
 	cd /opt/4nonimizer/vpn/vpnkeys && ./vpn-get-pass.sh
 	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for vpnkeys\n"
