@@ -24,8 +24,8 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
                                            By Carlos Antonini & Vicente Motos
                                            Version: 1.0-beta
 
-Usage: 4nonymizer **\<parameter\>**
-Example:  
+Usage: 4nonymizer **\<parameter\>**  
+Example:
   4nonimizer **install**    
     **install**:  Install the script in run services  
     **uninstall**: Disable run service and remove app directory  
