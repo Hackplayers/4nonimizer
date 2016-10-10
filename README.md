@@ -24,22 +24,22 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
                                            By Carlos Antonini & Vicente Motos
                                            Version: 1.0-beta
 
-Usage: 4nonymizer <parameter>
-Example:  4nonimizer install
+Usage: 4nonymizer **\<parameter\>**
+Example:  4nonimizer **install**
 
-    install:  Install the script in run services
-    uninstall: Disable run service and remove app directory
-    change_provider: Change VPN Provider
-    change_ip: Change IP from VPN current
-    vpn_status: Check IP and provider VPN running
-    update_vpns: Update all ovpn of VPNs
-    start: Init the 4nonimizer service
-    stop: Stop the 4nonimizer service
-    stop_nonet: Stop the 4nonimizer service and shutdown network interfaces
-    restart: Restart the 4nonimizer service
-    update_app: Update this program via git
-    privoxy: Install and configure privoxy with port 8118 (BETA)
-    help: Help (this screen)
+    **install**:  Install the script in run services
+    **uninstall**: Disable run service and remove app directory
+    **change_provider**: Change VPN Provider
+    **change_ip**: Change IP from VPN current
+    **vpn_status**: Check IP and provider VPN running
+    **update_vpns**: Update all ovpn of VPNs
+    **start**: Init the 4nonimizer service
+    **stop**: Stop the 4nonimizer service
+    **stop_nonet**: Stop the 4nonimizer service and shutdown network interfaces
+    **restart**: Restart the 4nonimizer service
+    **update_app**: Update this program via git
+    **privoxy**: Install and configure privoxy with port 8118 (BETA)
+    **help**: Help (this screen)
 
 
 
