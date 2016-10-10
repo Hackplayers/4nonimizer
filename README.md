@@ -25,7 +25,7 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
                                            Version: 1.0-beta
 
 Usage: 4nonymizer **\<parameter\>**  
-  **install**:  Install the script in run services  
+  &nbsp;**install**:  Install the script in run services  
     **uninstall**: Disable run service and remove app directory  
     **change_provider**: Change VPN Provider  
     **change_ip**: Change IP from VPN current  
