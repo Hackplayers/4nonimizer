@@ -37,7 +37,7 @@ function start () {
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
 	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
-	cd /opt/4nonimizer/vpn/torguard/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/vpnbook/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
