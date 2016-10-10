@@ -25,19 +25,19 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
                                            Version: 1.0-beta
 
 Usage: 4nonymizer **\<parameter\>**  
-  &nbsp;**install**:  Install the script in run services  
-    **uninstall**: Disable run service and remove app directory  
-    **change_provider**: Change VPN Provider  
-    **change_ip**: Change IP from VPN current  
-    **vpn_status**: Check IP and provider VPN running  
-    **update_vpns**: Update all ovpn of VPNs  
-    **start**: Init the 4nonimizer service  
-    **stop**: Stop the 4nonimizer service  
-    **stop_nonet**: Stop the 4nonimizer service and shutdown network interfaces  
-    **restart**: Restart the 4nonimizer service  
-    **update_app**: Update this program via git  
-    **privoxy**: Install and configure privoxy with port 8118 (BETA)  
-    **help**: Help (this screen)  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**uninstall**: Disable run service and remove app directory  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**change_provider**: Change VPN Provider  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**change_ip**: Change IP from VPN current  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**vpn_status**: Check IP and provider VPN running  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**update_vpns**: Update all ovpn of VPNs  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**start**: Init the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**stop**: Stop the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**stop_nonet**: Stop the 4nonimizer service and shutdown network interfaces  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**restart**: Restart the 4nonimizer service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**update_app**: Update this program via git  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**privoxy**: Install and configure privoxy with port 8118 (BETA)  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
 
 # Available VPNs
