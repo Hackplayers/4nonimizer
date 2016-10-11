@@ -114,8 +114,8 @@ function stop () {
 	asciilogo
 	checkifinstalled
 	systemctl stop tor
-	ps -uax | grep log- | awk '{print $2}' | xargs kill -9
-	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
+	ps -uax | grep log- | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	echo -e "\n${GREEN}You can continue browsing using your real IP!!!${NC}\n"
 }
