@@ -465,7 +465,7 @@ function browser ()
 	cd /root/.mozilla/firefox 2> /dev/null
 	tar xvzf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null 
 	rm -rf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null
-	firefox -P 4nonimizer-profile --private-window ipinfo.io 2> /dev/null
+	firefox -P 4nonimizer-profile --private-window ipecho.net/plain 2> /dev/null
 }
 
 # main exec
