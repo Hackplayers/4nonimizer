@@ -475,7 +475,7 @@ case $1 in
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy with port 8118 (BETA)"
-		echo -e "    ${CYAN}proxychains${NC}: Install and configure proxychains4 for default in the system"
+		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 for default in the system"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
