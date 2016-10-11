@@ -37,7 +37,7 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**restart**: Restart the 4nonimizer service  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**update_app**: Update this program via git  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**privoxy**: Install and configure privoxy with port 8118 (BETA)  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**browser**: Fire up a firefox browser with profile privoxy -> tor  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
