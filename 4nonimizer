@@ -24,7 +24,7 @@ echo ""
 }
 function checkifinstalled () {
 if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
-	echo -e "\n${RED}[*]${NC} You must install o4nonimizer first!\n"
+	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
 }
