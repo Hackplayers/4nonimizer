@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.0-beta"
+version="1.02-beta"
 
 clear
 CYAN='\e[34m'
