@@ -455,6 +455,7 @@ function browser ()
 {
 	asciilogo
 	checkifinstalled
+	privoxy
 	cp /opt/4nonimizer/profiles/
 	systemctl start tor
 	cp /opt/4nonimizer/profiles/rdpy967e.4nonimizer-profile.tar.gz /root/.mozilla/firefox/ 2> /dev/null
