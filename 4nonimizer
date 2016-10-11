@@ -458,14 +458,14 @@ function browser ()
 	asciilogo
 	checkifinstalled
 	privoxy
-	cp /opt/4nonimizer/profiles/
+	cd /opt/4nonimizer/profiles/
 	systemctl start tor
 	cp /opt/4nonimizer/profiles/rdpy967e.4nonimizer-profile.tar.gz /root/.mozilla/firefox/ 2> /dev/null
 	cp /opt/4nonimizer/profiles/profiles.ini /root/.mozilla/firefox/ 2> /dev/null
 	cd /root/.mozilla/firefox 2> /dev/null
 	tar xvzf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null 
 	rm -rf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null
-	firefox-esr -P 4nonimizer-profile --private-window ipinfo.io 2> /dev/null
+	firefox -P 4nonimizer-profile --private-window ipinfo.io 2> /dev/null
 }
 
 # main exec
