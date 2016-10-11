@@ -308,7 +308,9 @@ function uninstall () {
 }
 
 function reinstall () {
+	stop
 	uninstall
+	cd /opt/
 	git clone https://github.com/Hackplayers/4nonimizer.git
 	install
 }
