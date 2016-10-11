@@ -24,7 +24,7 @@ echo ""
 }
 function checkifinstalled () {
 if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
-	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
+	echo -e "\n${RED}[*]${NC} You must install o4nonimizer first!\n"
 	exit 1
 fi
 }
@@ -196,43 +196,34 @@ function install () {
 function update_vpns () {
 	asciilogo
 	checkifinstalled
-	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for HideMyAss\n"
-	cd /opt/4nonimizer/vpn/hidemyass && ./vpn-get-pass.sh
-	echo -e "\n${GREEN}[+]${NC} Obtaining all available ovpn files for HideMyAss\n"
-	cd /opt/4nonimizer/vpn/hidemyass && ./vpn-get-ovpn.sh
-	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for TorGuard\n"
-	cd /opt/4nonimizer/vpn/torguard && ./vpn-get-pass.sh
-	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for TorGuard\n"
-	sleep 5
-	echo -e "\n${GREEN}[+]${NC} Obtaining all for VPNbook\n"
-	cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
-	echo -e "\n${GREEN}[+]${NC} Obtaining all for VPNgate\n"
-	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-pass.sh
-	cd /opt/4nonimizer/vpn/vpngate && ./vpn-get-ovpn.sh	
-	echo -e "\n${GREEN}[+]${NC} Obtaining all for FreeVPN\n"
-	cd /opt/4nonimizer/vpn/freevpn && ./vpn-get-pass.sh
-	cd /opt/4nonimizer/vpn/freevpn && ./vpn-get-ovpn.sh	
-	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for vpnkeys\n"
-	cd /opt/4nonimizer/vpn/vpnkeys && ./vpn-get-pass.sh
-	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for vpnkeys\n"
-	sleep 5
-	echo -e "\n${GREEN}[+]${NC} Obtaining credentials for vpnme\n"
-	cd /opt/4nonimizer/vpn/vpnme && ./vpn-get-pass.sh
-	echo -e "\n${GREEN}[+]${NC} Copy manually all ovpn files for vpnme\n"
-	sleep 5
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			num=`expr $num + 1`
+			echo -e "\n${GREEN}[+]${NC} Obtaining credentials for provider #$num: $lista\n"
+			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-pass.sh
+			echo -e "\n${GREEN}[+]${NC} Obtaining available ovpn files for provider #$num: $lista\n"
+			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-ovpn.sh
+			LISTADO[$num]=$lista
+	done
+	 echo -e "\n${Green} All VPNs have been configured\n"
+
 }
 
 function vpn_list () {
 	num=0
 	echo -e "\n${Green} List of available VPN providers\n"
+	autokey="#4uto"
 	for lista in $(ls /opt/4nonimizer/vpn/); 
 		do
 			num=`expr $num + 1`
-			if [ -f /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh ] && [ -f /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh ]; then
+			fileovpns=$(head -n1 /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh)
+			filecreds=$(head -n1 /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh)
+			cd /opt/4nonimizer/vpn/$lista
+			if  [ "$autokey" == "$fileovpns" ] && [ "$autokey" == "$filecreds" ] ; then
 				echo "["$num"] - "$lista "(Auto-get OVPN) (Auto-pass Login)"
-			elif [ -f /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh ]; then
+			elif [ "$autokey" == "$filecreds" ] ; then
 				echo "["$num"] - "$lista "(Auto-pass Login)"
-			elif [ -f /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh ]; then
+			elif [ "$autokey" == "$fileovpns" ] ; then
 				echo "["$num"] - "$lista "(Auto-get OVPN)"
 			else
 				echo "["$num"] - "$lista 

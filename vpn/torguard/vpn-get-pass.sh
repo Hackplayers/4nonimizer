@@ -1,3 +1,4 @@
+#m4nual
 read -r -p "Do you have a login for this vpn provider [y/N] " response
 
 case $response in

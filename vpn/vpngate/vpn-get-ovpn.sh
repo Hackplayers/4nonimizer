@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#4uto
 vpn_lists=$(curl http://www.vpngate.net/api/iphone/ 2> /dev/null | awk -F',' '{print $1 "_" $7, $15}')
 echo "${vpn_lists}" | while read line; do
   hostname=${line%% *}
