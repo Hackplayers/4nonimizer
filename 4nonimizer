@@ -451,6 +451,20 @@ function proxychains4 ()
 	fi
 }
 
+function browser () 
+{
+	asciilogo
+	checkifinstalled
+	cp /opt/4nonimizer/profiles/
+	systemctl start tor
+	cp /opt/4nonimizer/profiles/rdpy967e.4nonimizer-profile.tar.gz /root/.mozilla/firefox/ 2> /dev/null
+	cp /opt/4nonimizer/profiles/profiles.ini /root/.mozilla/firefox/ 2> /dev/null
+	cd /root/.mozilla/firefox 2> /dev/null
+	tar xvzf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null 
+	rm -rf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null
+	firefox-esr -P 4nonimizer-profile --private-window ipinfo.io 2> /dev/null
+}
+
 # main exec
 asciilogo
 complete -F autocom -o default 4nonimizer
@@ -460,7 +474,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -480,6 +494,7 @@ case $1 in
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy with port 8118 (BETA)"
 		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 for default in the system"
+		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
