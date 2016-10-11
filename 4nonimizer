@@ -29,7 +29,7 @@ if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
 fi
 }
 function start () {
-	IP_provider1=$(curl icanhazip.com 2> /dev/null)
+	IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
 	asciilogo
 	checkifinstalled
 	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
@@ -86,9 +86,9 @@ function start () {
 	  fi
 	  
 	done
-	IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
-		IP_provider2=$(curl icanhazip.com 2> /dev/null)
+		IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
 	done
 	vpn_status
 	echo -e "\n${GREEN}[!]${NC} All done!\n"
@@ -260,12 +260,12 @@ function change_provider () {
 			sed -i '40 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			systemctl stop 4non.service
-			IP_provider1=$(curl icanhazip.com 2> /dev/null)
+			IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
 			systemctl start 4non.service
 			for i in {0..5..1}; do echo -en "."; sleep 1;  done
-			IP_provider2=$(curl icanhazip.com 2> /dev/null)
+			IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
 			while [ $IP_provider1 = $IP_provider2 ] ; do 
-				IP_provider2=$(curl icanhazip.com 2> /dev/null)
+				IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
  			done
 			#systemctl status 4non.service
 			vpn_status
@@ -282,12 +282,12 @@ function change_ip () {
 	killall openvpn
 	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
 	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
-	IP_provider1=$(curl icanhazip.com 2> /dev/null)
+	IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
 	for i in {0..5..1}; do echo -en "."; sleep 1;  done
 	systemctl start 4non.service
-	IP_provider2=$(curl icanhazip.com 2> /dev/null)
+	IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
-		IP_provider2=$(curl icanhazip.com 2> /dev/null)
+		IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
 	done
         vpn_status
         echo -e "\n${GREEN}[!]${NC} Done!"
@@ -319,7 +319,7 @@ function start_logs_vpn () {
 #	IPREAL=172.124.22.55
 	SECS=300
 	sleep 5
-	IPVPN=$(curl icanhazip.com 2> /dev/null)
+	IPVPN=$(curl ipecho.net/plain 2> /dev/null)
 
 #	if [ $IPREAL == $IPVPN ] || [ $IPREAL == $IPTOR ]; then
 #	        ifconfig $(ifconfig | grep Ethernet -n3 | egrep -io "1-\w+" | awk -F'-' '{print $2}') down 2> /dev/null
@@ -335,7 +335,7 @@ function start_logs_vpn () {
 function start_logs_tor () {
 	SECS=300
 	sleep 5
-	IPTOR=$(proxychains curl icanhazip.com 2> /dev/null)
+	IPTOR=$(proxychains curl ipecho.net/plain 2> /dev/null)
 	cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.log$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null
 	while true;do echo $IPTOR = `date` >> /opt/4nonimizer/logs/log-tor-`date +'%d-%m-%Y'`.log && sleep $SECS ; done &
 }
@@ -361,10 +361,10 @@ function vpn_status () {
 	  if [ "$key" == "T" ]; then	
 		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
 		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
-		echo -e "IP: \t\t$(curl -s icanhazip.com)"
+		echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
 		echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 		echo  -e "\nTOR (using proxychains):"
-		proxychains  curl -s icanhazip.com 2> /dev/null
+		proxychains  curl -s ipecho.net/plain 2> /dev/null
 		proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p'
 		break
 	  fi
@@ -378,7 +378,7 @@ function vpn_status () {
 		else 
 			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
 			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
-			echo -e "IP: \t\t$(curl -s icanhazip.com)"
+			echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
 			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 			break
 		fi
