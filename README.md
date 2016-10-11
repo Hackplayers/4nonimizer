@@ -113,7 +113,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 # Versions
 
  Number | codename | date  
- -- | -- | --  
+ --- | --- | ---  
  1.0-beta | .bye-world! | 5/10/206    
  1.02 |  | 11/10/2016   
 
