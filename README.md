@@ -115,7 +115,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  Number | codename | date  
  --- | --- | ---  
  1.0-beta | .bye-world! | 5/10/2016    
- 1.02 |  | 11/10/2016   
+ 1.02-beta |  | 11/10/2016   
 
 ¡4nonimize the world!
 
@@ -249,7 +249,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  Number | codename | date  
  --- | --- | ---  
  1.0-beta | .bye-world! | 5/10/2016    
- 1.02 |  | 11/10/2016   
+ 1.02-beta |  | 11/10/2016   
 
 ¡4nonimiza el mundo!
 
