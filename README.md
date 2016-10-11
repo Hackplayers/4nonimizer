@@ -56,6 +56,9 @@ Currently it supports the following VPN providers:
 
 \- VPNKeys <https://www.vpnkeys.com/>
 
+\- FreeVPN <https://freevpn.me/>
+
+\- TunnelBear <https://www.tunnelbear.com/>
 
 # Install a new VPN
 
@@ -179,6 +182,9 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- VPNKeys <https://www.vpnkeys.com/>
 
+\- FreeVPN <https://freevpn.me/>
+
+\- TunnelBear <https://www.tunnelbear.com/>
 
 
 # Instalar una nueva VPN
