@@ -406,15 +406,19 @@ function privoxy ()
 	echo -e "\n${RED}[*]THIS FUNCTIONALITY IS BETA MAY CONTAIN ERRORS${NC}\n"
 	checkifinstalled
 	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
-		if [  -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+		if [  -f "/etc/privoxy/config" ]; then
 			/usr/sbin/privoxy /etc/privoxy/config
 			systemctl enable privoxy.service
 			netstat -putona | grep -v grep | grep privoxy --color
+			sed -i '/forward-socks5t \/ 127.0.0.1:9050 ./d' /etc/privoxy/config
+			sed -i '$a forward-socks5t / 127.0.0.1:9050 .' /etc/privoxy/config
 		else
 			apt-get install privoxy
 			/usr/sbin/privoxy /etc/privoxy/config
 			systemctl enable privoxy.service
 			netstat -putona | grep -v grep | grep privoxy --color
+			sed -i '/forward-socks5t \/ 127.0.0.1:9050 ./d' /etc/privoxy/config
+			sed -i '$a forward-socks5t / 127.0.0.1:9050 .' /etc/privoxy/config
 		fi
 	else
                 echo ""
