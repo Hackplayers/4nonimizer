@@ -423,6 +423,30 @@ function privoxy ()
         fi
 }
 
+function proxychains4 () 
+{
+	asciilogo
+	checkifinstalled
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
+	echo -e "\n${GREEN}[!]${NC}Uninstall Proxychains3\n"
+	apt-get autoremove proxychains --purge
+	echo -e "\n${GREEN}[!]${NC}Installing Proxychains4\n"
+	mkdir /opt/4nonimizer/dependences && cd /opt/4nonimizer/dependences
+	git clone https://github.com/rofl0r/proxychains-ng.git	
+	cd proxychains-ng 
+	./configure --prefix=/usr --sysconfdir=/etc
+	make
+	make install
+	make install-config
+	mv /usr/bin/proxychains4 /usr/bin/proxychains
+	echo -e "\n${GREEN}[!]${NC}Done!\n"
+	else
+		echo ""
+                echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+                exit 1
+	fi
+}
+
 # main exec
 asciilogo
 complete -F autocom -o default 4nonimizer
@@ -432,7 +456,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -451,6 +475,7 @@ case $1 in
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy with port 8118 (BETA)"
+		echo -e "    ${CYAN}proxychains${NC}: Install and configure proxychains4 for default in the system"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
