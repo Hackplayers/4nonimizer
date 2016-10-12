@@ -94,7 +94,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 ![Alt text](./images/autovpn_sample.png)
 
-4nonimizer automatically detect the presence of both scripts and indicate (Auto-pass Login) or (Auto-get OVPN) if applicable.
+4nonimizer automatically detect the presence of both scripts and indicate (Auto-pass Login) or (Auto-get OVPN) if it finds in the first line of each file the expression '#4uto' or '#m4nual' depending on the performed actions.
 
 ![Alt text](./images/provider_new.png)
 
@@ -228,7 +228,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 
 ![Alt text](./images/autovpn_sample.png)
 
-4nonimizer automáticamente detectará la presencia de ambos scripts e indicará (Auto-pass Login) o (Auto-get OVPN) si procede.
+4nonimizer automáticamente detectará la presencia de ambos scripts e indicará (Auto-pass Login) o (Auto-get OVPN) si encuentra en la primera linea de cada fichero la expresión "4uto' o 'm4nual' dependiendo de la función que realicen.
 
 ![Alt text](./images/provider_new.png)
 
