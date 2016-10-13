@@ -80,7 +80,7 @@ function start () {
 			if [ $count1 -eq 30 ];  then
 				clear
 				echo -ne "\n${RED}[+]${NC} There is a problem starting openvpn. Please, check nohup.out for details\n\n"
-				current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+				current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 				tail -n 30 /opt/4nonimizer/vpn/$current_provider/nohup.out
 				echo ""
 				exit 1
@@ -271,7 +271,7 @@ function change_provider () {
 	if [ ! -d "/opt/4nonimizer/vpn/" ]; then
 		echo -e "\n${RED} Install 4nonimizer first! (./4nonimizer install)\n${NC}"
 	else				
-		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 		echo -e "\n${GREEN} Currently you're using the $current_provider provider\n${NC}"
 		echo -e "\n${GREEN} Select the new VPN provider to change\n${NC}"
 		vpn_list
@@ -287,10 +287,10 @@ function change_provider () {
 			exit 1
 		fi
 		if [ "$new" -lt "$num" ] ; then
-			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
-			sed -i '40 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '73 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			systemctl stop 4non.service
 			IP_provider1=$(get_public_ip)
@@ -313,7 +313,7 @@ function change_ip () {
 	asciilogo
 	checkifinstalled
 	killall openvpn
-	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
+	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
 	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
 	IP_provider1=$(get_public_ip)
 	for i in {0..5..1}; do echo -en "."; sleep 1;  done
@@ -393,7 +393,7 @@ function vpn_status () {
 	read -s -n 1 -t 1 key  
 	  if [ "$key" == "T" ]; then	
 		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
-		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 		echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
 		echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 		echo  -e "\nTOR (using proxychains):"
@@ -410,7 +410,7 @@ function vpn_status () {
 			exit 1
 		else 
 			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
-			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 			echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
 			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 			break
