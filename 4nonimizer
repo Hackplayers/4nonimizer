@@ -22,14 +22,47 @@ echo -e "${RED}                                           By Carlos Antonini & V
 echo -e "${RED}                                           Version: $version${NC}"
 echo ""
 }
+
 function checkifinstalled () {
 if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
 }
+
+function check_ip_format () {
+    regex="\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+    echo "$1" | egrep "$regex" &>/dev/null
+    return $?
+}
+
+function get_public_ip () {
+	hash dig 2>/dev/null && {
+	    PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+	}
+	
+		if check_ip_format "$PUBLIC_IP"; then
+			echo "$PUBLIC_IP"
+			exit 1
+		fi
+	
+	for curl_ip in http://ipecho.net/plain http://ipinfo.io/ip http://ifconfig.me/ip http://curlmyip.com; do
+		 PUBLIC_IP=$( curl -s $curl_ip )
+		if check_ip_format "$PUBLIC_IP"; then
+			break
+		fi
+	done
+
+	if ! check_ip_format "PUBLIC_IP"; then
+	    echo "Could not obtain your public IP address";
+	    exit 1;
+	fi
+
+	echo "$PUBLIC_IP"
+}
+
 function start () {
-	IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
+	IP_provider1=$(get_public_ip)
 	asciilogo
 	checkifinstalled
 	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
@@ -86,9 +119,9 @@ function start () {
 	  fi
 	  
 	done
-	IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+	IP_provider2=$(get_public_ip)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
-		IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+		IP_provider2=$(get_public_ip)
 	done
 	vpn_status
 	echo -e "\n${GREEN}[!]${NC} All done!\n"
@@ -260,12 +293,12 @@ function change_provider () {
 			sed -i '40 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			systemctl stop 4non.service
-			IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
+			IP_provider1=$(get_public_ip)
 			systemctl start 4non.service
 			for i in {0..5..1}; do echo -en "."; sleep 1;  done
-			IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+			IP_provider2=$(get_public_ip)
 			while [ $IP_provider1 = $IP_provider2 ] ; do 
-				IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+				IP_provider2=$(get_public_ip)
  			done
 			#systemctl status 4non.service
 			vpn_status
@@ -282,12 +315,12 @@ function change_ip () {
 	killall openvpn
 	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==40' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
 	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
-	IP_provider1=$(curl ipecho.net/plain 2> /dev/null)
+	IP_provider1=$(get_public_ip)
 	for i in {0..5..1}; do echo -en "."; sleep 1;  done
 	systemctl start 4non.service
-	IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+	IP_provider2=$(get_public_ip)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
-		IP_provider2=$(curl ipecho.net/plain 2> /dev/null)
+		IP_provider2=$(get_public_ip)
 	done
         vpn_status
         echo -e "\n${GREEN}[!]${NC} Done!"
@@ -319,7 +352,7 @@ function start_logs_vpn () {
 #	IPREAL=172.124.22.55
 	SECS=300
 	sleep 5
-	IPVPN=$(curl ipecho.net/plain 2> /dev/null)
+	IPVPN=$(get_public_ip)
 
 #	if [ $IPREAL == $IPVPN ] || [ $IPREAL == $IPTOR ]; then
 #	        ifconfig $(ifconfig | grep Ethernet -n3 | egrep -io "1-\w+" | awk -F'-' '{print $2}') down 2> /dev/null
@@ -484,19 +517,19 @@ case $1 in
 		echo "Usage: 4nonymizer <parameter>"
 		echo -e "Example:  4nonimizer ${CYAN}install${NC}"
 		echo ""
-		echo -e "    ${CYAN}install${NC}:  Install the script in run services"
+		echo -e "    ${CYAN}install${NC}:  Install the script in /opt/4nonimizer and in running services"
 		echo -e "    ${CYAN}uninstall${NC}: Disable run service and remove app directory"
 		echo -e "    ${CYAN}change_provider${NC}: Change VPN Provider"
-		echo -e "    ${CYAN}change_ip${NC}: Change IP from VPN current"
-		echo -e "    ${CYAN}vpn_status${NC}: Check IP and provider VPN running"
+		echo -e "    ${CYAN}change_ip${NC}: Change IP from current VPN provider"
+		echo -e "    ${CYAN}vpn_status${NC}: Check IP and running VPN provider"
 		echo -e "    ${CYAN}update_vpns${NC}: Update all ovpn of VPNs"
 		echo -e "    ${CYAN}start${NC}: Init the 4nonimizer service"
 		echo -e "    ${CYAN}stop${NC}: Stop the 4nonimizer service"
 		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
-		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy with port 8118 (BETA)"
-		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 for default in the system"
+		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy on port 8118 (BETA)"
+		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
