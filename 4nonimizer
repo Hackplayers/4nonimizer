@@ -229,6 +229,7 @@ function install () {
 function update_vpns () {
 	asciilogo
 	checkifinstalled
+	num=0
 	for lista in $(ls /opt/4nonimizer/vpn/); 
 		do
 			num=`expr $num + 1`
