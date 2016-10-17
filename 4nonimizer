@@ -168,12 +168,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2
+		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 netcat dos2unix
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2
+		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 netcat dos2unix
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -203,7 +203,8 @@ function install () {
 	  if [ $count -eq 0 ]
 	    then
 		echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (VpnBook)\n"
-	        cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh	
+	        cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
+		test_availability	
 	       break
 	  fi     
 
@@ -238,6 +239,7 @@ function update_vpns () {
 			echo -e "\n${GREEN}[+]${NC} Obtaining available ovpn files for provider #$num: $lista\n"
 			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-ovpn.sh
 			LISTADO[$num]=$lista
+			test_availability
 	done
 	 echo -e "\n${Green} All VPNs have been configured\n"
 
@@ -501,6 +503,39 @@ function browser ()
 	rm -rf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null
 	firefox -P 4nonimizer-profile --private-window ipecho.net/plain 2> /dev/null
 }
+
+function test_availability () 
+{
+        echo "checking VPN peers availability..."
+        dos2unix * &> /dev/null
+        for file in $(ls *.ovpn)
+        do
+                checkedprotocol=$(grep proto $file | grep -v '#' | awk '{print $2}')
+                checkedip=$(grep remote $file | grep -v '#' | awk '{print $2}')
+                checkedport=$(grep remote $file | grep -v '#' | awk '{print $3}')
+                if [[ $checkedprotocol = *"tcp"* ]]
+                then
+                result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
+                if [ -n "$result" ]; then
+                                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+                                else
+                                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+                                        rm $file
+                        fi
+                fi
+                if [[ $checkedprotocol = *"udp"* ]]
+                then
+                result=$(nc -zv -w3 -u $checkedip $checkedport 2>&1 | grep succeeded);
+                if [ -n "$result" ]; then
+                                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+                                else
+                                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+                                        rm $file
+                        fi
+                fi
+        done
+}
+
 
 # main exec
 asciilogo
