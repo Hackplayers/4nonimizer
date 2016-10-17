@@ -511,8 +511,8 @@ function test_availability ()
         for file in $(ls *.ovpn)
         do
                 checkedprotocol=$(grep proto $file | grep -v '#' | awk '{print $2}')
-                checkedip=$(grep remote $file | grep -v '#' | awk '{print $2}')
-                checkedport=$(grep remote $file | grep -v '#' | awk '{print $3}')
+                checkedip=$(grep -m 1 remote $file | grep -v '#' | awk '{print $2}')
+                checkedport=$(grep -m 1 remote $file | grep -v '#' | awk '{print $3}')
                 if [[ $checkedprotocol = *"tcp"* ]]
                 then
                 result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
