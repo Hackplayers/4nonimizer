@@ -204,7 +204,6 @@ function install () {
 	    then
 		echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (VpnBook)\n"
 	        cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
-		test_availability	
 	       break
 	  fi     
 
@@ -239,9 +238,9 @@ function update_vpns () {
 			echo -e "\n${GREEN}[+]${NC} Obtaining available ovpn files for provider #$num: $lista\n"
 			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-ovpn.sh
 			LISTADO[$num]=$lista
-			test_availability
 	done
 	 echo -e "\n${Green} All VPNs have been configured\n"
+	 echo -e "\n${Red} Consider check availability of provider nodes executing '4nonimizer test_availability'\n"
 
 }
 
@@ -506,34 +505,44 @@ function browser ()
 
 function test_availability () 
 {
-        echo "checking VPN peers availability..."
-        dos2unix * &> /dev/null
-        for file in $(ls *.ovpn)
-        do
-                checkedprotocol=$(grep proto $file | grep -v '#' | awk '{print $2}')
-                checkedip=$(grep -m 1 remote $file | grep -v '#' | awk '{print $2}')
-                checkedport=$(grep -m 1 remote $file | grep -v '#' | awk '{print $3}')
-                if [[ $checkedprotocol = *"tcp"* ]]
-                then
-                result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
-                if [ -n "$result" ]; then
-                                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-                                else
-                                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-                                        rm $file
-                        fi
-                fi
-                if [[ $checkedprotocol = *"udp"* ]]
-                then
-                result=$(nc -zv -w3 -u $checkedip $checkedport 2>&1 | grep succeeded);
-                if [ -n "$result" ]; then
-                                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-                                else
-                                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-                                        rm $file
-                        fi
-                fi
-        done
+	asciilogo
+	checkifinstalled
+	num=0
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			cd /opt/4nonimizer/vpn/$lista
+			echo -e "\n${GREEN}[+]${NC} checking VPN peers availability of provider $lista\n"
+			cd /opt/4nonimizer/vpn/$lista
+			dos2unix * &> /dev/null
+			for file in $(ls *.ovpn)
+			do
+				checkedprotocol=$(grep proto $file | grep -v '#' | awk '{print $2}')
+				checkedip=$(grep -m 1 remote $file | grep -v '#' | awk '{print $2}')
+				checkedport=$(grep -m 1 remote $file | grep -v '#' | awk '{print $3}')
+				if [[ $checkedprotocol = *"tcp"* ]]
+				then
+				result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
+				if [ -n "$result" ]; then
+				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				                else
+				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+				                        rm $file
+				        fi
+				fi
+				if [[ $checkedprotocol = *"udp"* ]]
+				then
+				result=$(nc -zv -w3 -u $checkedip $checkedport 2>&1 | grep succeeded);
+				if [ -n "$result" ]; then
+				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				                else
+				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+				                        rm $file
+				        fi
+				fi
+			done
+	done
+
+	 echo -e "\n${Green} The VPN peers availability have been checked\n"
 }
 
 
@@ -546,7 +555,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -567,6 +576,7 @@ case $1 in
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy on port 8118 (BETA)"
 		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
+		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
