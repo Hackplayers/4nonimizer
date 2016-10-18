@@ -516,9 +516,9 @@ function test_availability ()
 			dos2unix * &> /dev/null
 			for file in $(ls *.ovpn)
 			do
-				checkedprotocol=$(grep proto $file | grep -v '#' | awk '{print $2}')
-				checkedip=$(grep -m 1 remote $file | grep -v '#' | awk '{print $2}')
-				checkedport=$(grep -m 1 remote $file | grep -v '#' | awk '{print $3}')
+				checkedprotocol=$(grep -v '#' $file | grep -m 1 proto | awk '{print $2}')
+				checkedip=$(grep -v '#' $file | grep -m 1 remote | awk '{print $2}')
+				checkedport=$(grep -v '#' $file | grep -m 1 remote | awk '{print $3}')
 				if [[ $checkedprotocol = *"tcp"* ]]
 				then
 				result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
