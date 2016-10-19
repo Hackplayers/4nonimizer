@@ -70,7 +70,7 @@ function start () {
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
 	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
-	cd /opt/4nonimizer/vpn/tunnelbear/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/vpngate/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
@@ -552,12 +552,23 @@ function country () {
 	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
 	echo -e "\nVPN Provider: \t $provider\n"
 
-case $provider  in
+	case $provider  in
                 freevpn)
 			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
                 ;;
                 hidemyass)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+			num=0
+                        for lista in $(ls /opt/4nonimizer/vpn/$provider/ | awk -F'.' '{print $1}' | sort -u);
+                        do
+                                num=`expr $num + 1`
+                                echo "["$num"] - "$lista
+                                PAISES[$num]=$lista
+                        done
+                        echo -en "\nNumber > "
+                        read new
+                        echo ${PAISES[$new]} 
+                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+
      		;;            
                 torguard)
 			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
@@ -570,20 +581,40 @@ case $provider  in
 		                echo "["$num"] - "$lista
                 		PAISES[$num]=$lista
 		        done
-
 			echo -en "\nNumber > "
 		        read new
 	        	echo ${PAISES[$new]} 
-		        cd /opt/4nonimizer/vpn/tunnelbear/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+		        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
 		;;
 		vpnbook)
 			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
 		;;
 		vpngate)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+		num=0
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+                                echo "["$num"] - "$lista
+                                PAISES[$num]=$lista
+                                done
+                        echo -en "\nNumber > "
+                        read new
+                        echo ${PAISES[$new]} 
+                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+
 		;;
 		vpnkeys)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+			num=0
+        	        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+	        	        do
+                       	        num=`expr $num + 1`
+               	                echo "["$num"] - "$lista
+       	                        PAISES[$num]=$lista
+	                        done
+                       	echo -en "\nNumber > "
+               	        read new
+       	                echo ${PAISES[$new]} 
+                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
 		;;
 		vpnme)
 			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"	
