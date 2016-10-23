@@ -168,12 +168,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 netcat dos2unix
+		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 netcat dos2unix
+		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -525,23 +525,30 @@ function test_availability ()
 				checkedport=$(grep -v '#' $file | grep -m 1 remote | awk '{print $3}')
 				if [[ $checkedprotocol = *"tcp"* ]]
 				then
-				result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
-				if [ -n "$result" ]; then
-				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-				                else
-				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-				                        rm $file
-				        fi
+				#option 1
+				#result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
+				#if [ -n "$result" ]; then
+				#option 2
+				#</dev/tcp/$checkedip/$checkedport
+				#if [ "$?" -ne 0 ]; then
+				#option 3
+				open=`nmap -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+					rm $file
+				else
+					echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				fi
 				fi
 				if [[ $checkedprotocol = *"udp"* ]]
 				then
-				result=$(nc -zv -w3 -u $checkedip $checkedport 2>&1 | grep succeeded);
-				if [ -n "$result" ]; then
-				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-				                else
-				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-				                        rm $file
-				        fi
+				open=`nmap -sU -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+				        rm $file
+				else
+				        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+			        fi
 				fi
 			done
 	done
