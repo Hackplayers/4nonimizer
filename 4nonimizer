@@ -512,7 +512,7 @@ function test_availability ()
 		do
 			cd /opt/4nonimizer/vpn/$lista
 			echo -e "\n${GREEN}[+]${NC} checking VPN peers availability of provider $lista\n"
-			if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+			if ! ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
 				echo -e "\n${RED}[*]${NC} You do not have connection to Internet now! Please check it before testing ovpns.\n"
 				exit 1
 			fi
