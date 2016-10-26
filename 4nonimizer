@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.03-beta"
+version="1.04-beta"
 
 clear
 CYAN='\e[34m'
@@ -565,7 +565,7 @@ function country () {
 
 	case $provider  in
                 freevpn)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+			echo -e "sorry this options only run with tunnelbear vpn provider, at the moment"
                 ;;
                 hidemyass)
 			num=0
@@ -605,7 +605,8 @@ function country () {
                         for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
                                 do
                                 num=`expr $num + 1`
-                                echo "["$num"] - "$lista
+				country=$(cat countryInfo.txt | awk '"$1" == "$lista"' | awk '{print $5}')
+                                echo "["$num"] - "$country
                                 PAISES[$num]=$lista
                                 done
                         echo -en "\nNumber > "
@@ -619,7 +620,8 @@ function country () {
         	        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
 	        	        do
                        	        num=`expr $num + 1`
-               	                echo "["$num"] - "$lista
+				country=$(cat countryInfo.txt | awk '$1 == "$lista"' | awk '{print $5}')
+               	                echo "["$num"] - "$country
        	                        PAISES[$num]=$lista
 	                        done
                        	echo -en "\nNumber > "
