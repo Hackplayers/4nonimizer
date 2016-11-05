@@ -605,8 +605,11 @@ function country () {
                         for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
                                 do
                                 num=`expr $num + 1`
-				country=$(cat countryInfo.txt | awk '"$1" == "$lista"' | awk '{print $5}')
-                                echo "["$num"] - "$country
+				if [[ -z "$lista" ]]; then
+					lista="unknown"
+					fi
+				cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'
+                                echo  -ne "["$num"] - "$country
                                 PAISES[$num]=$lista
                                 done
                         echo -en "\nNumber > "
