@@ -602,17 +602,37 @@ function country () {
 		;;
 		vpngate)
 		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
                         for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
                                 do
                                 num=`expr $num + 1`
-				if [[ -z "$lista" ]]; then
-					lista="unknown"
-					fi
-				cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'
-                                echo  -ne "["$num"] - "$country
+				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
                                 PAISES[$num]=$lista
-                                done
-                        echo -en "\nNumber > "
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+				num=`expr $num + 1`
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				continentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+			done
+			
+                        echo -en "\n\nNumber > "
                         read new
                         echo ${PAISES[$new]} 
                         cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
@@ -639,6 +659,21 @@ function country () {
 			echo -e "Error!!"
 		;;              
           esac 
+}
+
+continentname(){
+
+case $continentcode in
+    "AF" )    continent="Africa"; ;; 
+    "AN" )    continent="Antarctica"; ;; 
+    "AS" )    continent="Asia"; ;; 
+    "OC" )    continent="Australia(Oceania)"; ;; 
+    "EU" )    continent="Europe"; ;; 
+    "NA" )    continent="NorthAmerica"; ;; 
+    "SA" )    continent="SouthAmerica"; ;; 
+    * )      continent="Unknown"; ;; 
+esac
+	
 }
 
 # main exec
