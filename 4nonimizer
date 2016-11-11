@@ -62,6 +62,7 @@ function get_public_ip () {
 }
 
 function start () {
+
 	IP_provider1=$(get_public_ip)
 	asciilogo
 	checkifinstalled
@@ -70,7 +71,10 @@ function start () {
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
 	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
-	cd /opt/4nonimizer/vpn/vpngate/ ; nohup openvpn $(ls *.ovpn | shuf -n 1) 2>/dev/null & 
+	if [ -z "$SELECTOVPN" ]; then
+		SELECTOVPN=$(ls *.ovpn | shuf -n 1)
+	fi
+	cd /opt/4nonimizer/vpn/vpngate/ & nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
@@ -616,7 +620,6 @@ function country () {
 			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
 			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
                                 do
-				num=`expr $num + 1`
 				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
 				continentname
 			        if [ -z "$continent" ] ; then country="unknown"; fi
@@ -630,13 +633,28 @@ function country () {
 			 do 
 				num=`expr $num + 1`
 				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+
 			done
 			
                         echo -en "\n\nNumber > "
                         read new
-                        echo ${PAISES[$new]} 
-                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+			
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "estas seleccionando continente"
+				sleep 20
+			else
+			echo "You've selected to use a specific country"
+			#echo ${PAISES[$new]} 						
+			#cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+	
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
 
+			fi
+		
 		;;
 		vpnkeys)
 			num=0
