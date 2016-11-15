@@ -168,12 +168,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 netcat dos2unix
+		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix unzip
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 netcat dos2unix
+		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
