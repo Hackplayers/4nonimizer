@@ -512,6 +512,10 @@ function test_availability ()
 		do
 			cd /opt/4nonimizer/vpn/$lista
 			echo -e "\n${GREEN}[+]${NC} checking VPN peers availability of provider $lista\n"
+			if ! ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+				echo -e "\n${RED}[*]${NC} You do not have connection to Internet now! Please check it before testing ovpns.\n"
+				exit 1
+			fi
 			cd /opt/4nonimizer/vpn/$lista
 			dos2unix * &> /dev/null
 			for file in $(ls *.ovpn)
@@ -521,30 +525,36 @@ function test_availability ()
 				checkedport=$(grep -v '#' $file | grep -m 1 remote | awk '{print $3}')
 				if [[ $checkedprotocol = *"tcp"* ]]
 				then
-				result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
-				if [ -n "$result" ]; then
-				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-				                else
-				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-				                        rm $file
-				        fi
+				#option 1
+				#result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
+				#if [ -n "$result" ]; then
+				#option 2
+				#</dev/tcp/$checkedip/$checkedport
+				#if [ "$?" -ne 0 ]; then
+				#option 3
+				open=`nmap -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+					rm $file
+				else
+					echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				fi
 				fi
 				if [[ $checkedprotocol = *"udp"* ]]
 				then
-				result=$(nc -zv -w3 -u $checkedip $checkedport 2>&1 | grep succeeded);
-				if [ -n "$result" ]; then
-				                        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
-				                else
-				                        echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
-				                        rm $file
-				        fi
+				open=`nmap -sU -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+				        rm $file
+				else
+				        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+			        fi
 				fi
 			done
 	done
 
 	 echo -e "\n${Green} The VPN peers availability have been checked\n"
 }
-
 
 # main exec
 asciilogo
