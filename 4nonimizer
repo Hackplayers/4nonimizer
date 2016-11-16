@@ -626,6 +626,7 @@ function country () {
 				array+=($continent)
 			done	
 
+
 			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 
 							
@@ -634,6 +635,7 @@ function country () {
 				num=`expr $num + 1`
 				echo  -ne "   ["$num"]-"$i
 				rangonumcont+=($num)
+				CONT[$num]=$i
 
 			done
 			
@@ -641,7 +643,10 @@ function country () {
                         read new
 			
 			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
-				echo "estas seleccionando continente"
+				echo "estas seleccionando continente ${CONT[$new]}"
+				continentname=${CONT[$new]}
+				continentcode
+				#echo -e "\n$continentcode"
 				sleep 20
 			else
 			echo "You've selected to use a specific country"
@@ -668,7 +673,7 @@ function country () {
                        	echo -en "\nNumber > "
                	        read new
        	                echo ${PAISES[$new]} 
-                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${sorted_unique_continents[$new]} | shuf -n 1)"
 		;;
 		vpnme)
 			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"	
@@ -690,6 +695,21 @@ case $continentcode in
     "NA" )    continent="NorthAmerica"; ;; 
     "SA" )    continent="SouthAmerica"; ;; 
     * )      continent="Unknown"; ;; 
+esac
+	
+}
+
+continentcode(){
+
+case $continentname in
+    "Africa" )    continentcode="AF"; ;; 
+    "Antarctica" )    continentcode="AN"; ;; 
+    "Asia" )    continentcode="AS"; ;; 
+    "Australia(Oceania)" )    continentcode="OC"; ;; 
+    "Europe" )    continentcode="EU"; ;; 
+    "NorthAmerica" )    continentcode="NA"; ;; 
+    "SouthAmerica" )    continentcode="SA"; ;; 
+    * )      continentcode="Unknown"; ;; 
 esac
 	
 }
