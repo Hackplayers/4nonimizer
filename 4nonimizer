@@ -560,7 +560,7 @@ function test_availability ()
 	 echo -e "\n${Green} The VPN peers availability have been checked\n"
 }
 
-function country () {
+function location () {
 	asciilogo
 	checkifinstalled
 	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
@@ -620,7 +620,7 @@ function country () {
 			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
                                 do
 				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
-				continentname
+				tocontinentname
 			        if [ -z "$continent" ] ; then country="unknown"; fi
 				array+=($continent)
 			done	
@@ -644,9 +644,26 @@ function country () {
 			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
 				echo "estas seleccionando continente ${CONT[$new]}"
 				continentname=${CONT[$new]}
-				continentcode
+				tocontinentcode
 				#echo -e "\n$continentcode"
-				sleep 20
+				for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+
+					if [[ "$continentcode" == "$continentcode2" ]] ; then 
+						array2+=($lista)
+					fi
+	
+				done	
+				
+			#echo "${array2[@]}"
+			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
+			#echo $countryselected && sleep 10
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+				
 			else
 			echo "You've selected to use a specific country"
 			#echo ${PAISES[$new]} 						
@@ -683,7 +700,7 @@ function country () {
           esac 
 }
 
-continentname(){
+tocontinentname(){
 
 case $continentcode in
     "AF" )    continent="Africa"; ;; 
@@ -698,7 +715,7 @@ esac
 	
 }
 
-continentcode(){
+tocontinentcode(){
 
 case $continentname in
     "Africa" )    continentcode="AF"; ;; 
@@ -722,7 +739,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|country)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -744,6 +761,7 @@ case $1 in
 		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
+		echo -e "    ${CYAN}location${NC}: ${RED}NEW!${NC} Now you can select a specific country or continent of the vpn peer"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
