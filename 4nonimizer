@@ -560,83 +560,97 @@ function test_availability ()
 	 echo -e "\n${Green} The VPN peers availability have been checked\n"
 }
 
-function location () {
-	asciilogo
-	checkifinstalled
-	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
-	echo -e "\nVPN Provider: \t $provider\n"
-
-	case $provider  in
-                freevpn)
-			echo -e "sorry this options only run with tunnelbear vpn provider, at the moment"
-                ;;
-                hidemyass)
-			num=0
-                        for lista in $(ls /opt/4nonimizer/vpn/$provider/ | awk -F'.' '{print $1}' | sort -u);
+function locate_online () {
+num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+			array1=()
+			
+                        for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
                         do
                                 num=`expr $num + 1`
-                                echo "["$num"] - "$lista
-                                PAISES[$num]=$lista
-                        done
-                        echo -en "\nNumber > "
-                        read new
-                        echo ${PAISES[$new]} 
-                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
-
-     		;;            
-                torguard)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
-                ;;
-		tunnelbear)
-		        num=0
-		        for lista in $(ls /opt/4nonimizer/vpn/$provider/ | awk '{print $2}' | cut -d'.' -f1 | sort -u);
-		        do
-			        num=`expr $num + 1`
-		                echo "["$num"] - "$lista
-                		PAISES[$num]=$lista
-		        done
-			echo -en "\nNumber > "
-		        read new
-	        	echo ${PAISES[$new]} 
-		        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
-		;;
-		vpnbook)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
-		;;
-		vpngate)
-		num=0
-			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
-                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
-                                do
-                                num=`expr $num + 1`
-				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				ip=$(grep "remote" $lista | awk {'print $2'})
+				codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) }')
+				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
 			        if [ -z "$country" ] ; then country="unknown"; fi
-                                echo  -ne "   ["$num"]-"$country
-                                PAISES[$num]=$lista
+				array1+=($country)
+                        done
+
+			sorted_unique_countries=$(echo "${array1[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+			
+			num2=0
+			 for i in ${sorted_unique_countries[@]}
+			 do 
+				num2=`expr $num2 + 1`
+				echo  -ne "   ["$num2"]-"$i
+				rangonumcont+=($num2)
+				CONT[$num2]=$i
+
 			done
 			
-			array=()
+			array2=()
 			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
-			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
-                                do
-				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+			for i in ${sorted_unique_countries[@]};
+			do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$i -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
 				tocontinentname
 			        if [ -z "$continent" ] ; then country="unknown"; fi
-				array+=($continent)
+				array2+=($continent)
 			done	
 
 
-			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+			sorted_unique_continents=$(echo "${array2[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 
 							
 			 for i in ${sorted_unique_continents[@]}
 			 do 
-				num=`expr $num + 1`
-				echo  -ne "   ["$num"]-"$i
-				rangonumcont+=($num)
-				CONT[$num]=$i
+				num2=`expr $num2 + 1`
+				echo  -ne "   ["$num2"]-"$i
+				rangonumcont+=($num2)
+				CONT[$num2]=$i
 
 			done
+			
+                        echo -en "\n\nNumber > "
+                        read new
+			
+			array3=()
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "You've choosen the continent ${CONT[$new]}"
+				continentname=${CONT[$new]}
+				tocontinentcode
+				#echo -e "\n$continentcode"
+				for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+
+					if [[ "$continentcode" == "$continentcode2" ]] ; then 
+						array3+=($lista)
+					fi
+	
+				done	
+				
+			#echo "${array2[@]}"
+			countryselected=$(for el in "${array3[@]}"; do echo $el; done | shuf | head -1)
+			#echo $countryselected && sleep 10
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+				
+			else
+			echo "You've selected to use a specific country"
+			#echo ${PAISES[$new]} 						
+			#cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+	
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+
+			fi
+}
+
+function locate_offline () {
 			
                         echo -en "\n\nNumber > "
                         read new
@@ -675,6 +689,137 @@ function location () {
 			restart
 
 			fi
+}
+
+function location () {
+	asciilogo
+	checkifinstalled
+	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
+	echo -e "\nVPN Provider: \t $provider\n"
+
+	case $provider  in
+                freevpn)
+			locate_online
+                ;;
+                hidemyass)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;            
+                torguard)
+			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+                ;;
+		tunnelbear)
+		       num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		;;
+		vpnbook)
+			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+		;;
+		vpngate)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
 		
 		;;
 		vpnkeys)
