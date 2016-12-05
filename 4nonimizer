@@ -181,7 +181,7 @@ function install () {
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
-		exit 1
+º		exit 1
 		fi     
 	fi
 
@@ -568,7 +568,7 @@ num=0
                         for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
                         do
                                 num=`expr $num + 1`
-				ip=$(grep "remote" $lista | awk {'print $2'})
+				ip=$(grep -v '#' $lista | grep remote | awk '{print $2}' | grep -q '[0-9]')
 				codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) }')
 				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
 			        if [ -z "$country" ] ; then country="unknown"; fi
@@ -781,7 +781,7 @@ function location () {
 		locate_offline
 		;;
 		vpnbook)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+		locate_online
 		;;
 		vpngate)
 		
@@ -823,21 +823,13 @@ function location () {
 		
 		;;
 		vpnkeys)
-			num=0
-        	        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
-	        	        do
-                       	        num=`expr $num + 1`
-				country=$(cat countryInfo.txt | awk '$1 == "$lista"' | awk '{print $5}')
-               	                echo "["$num"] - "$country
-       	                        PAISES[$num]=$lista
-	                        done
-                       	echo -en "\nNumber > "
-               	        read new
-       	                echo ${PAISES[$new]} 
-                        cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${sorted_unique_continents[$new]} | shuf -n 1)"
+		locate_online
 		;;
 		vpnme)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"	
+		locate_online	
+		;;
+		cryptostorm)
+		locate_online
 		;;
                 *)
 			echo -e "Error!!"
