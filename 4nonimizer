@@ -70,11 +70,11 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls *.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
 	fi
-	cd /opt/4nonimizer/vpn/vpngate/ & nohup openvpn $SELECTOVPN 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/vpnbook/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
@@ -172,12 +172,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix unzip
+		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix unzip
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip
+		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -297,17 +297,22 @@ function change_provider () {
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
 			sed -i '73 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '75 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '77 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
-			systemctl stop 4non.service
+			#systemctl stop 4non.service
+			stop
 			IP_provider1=$(get_public_ip)
-			systemctl start 4non.service
+			sleep 3
+			start
+			#systemctl start 4non.service
 			for i in {0..5..1}; do echo -en "."; sleep 1;  done
 			IP_provider2=$(get_public_ip)
 			while [ $IP_provider1 = $IP_provider2 ] ; do 
 				IP_provider2=$(get_public_ip)
  			done
 			#systemctl status 4non.service
-			vpn_status
+			#vpn_status
 			echo -e "\n${GREEN}[+]${NC} Done!\n"
 		else
 			echo -e "\n${GREEN}[+]${NC} Invalid Option!\n"
@@ -898,7 +903,7 @@ case $1 in
 		echo -e "    ${CYAN}stop${NC}: Stop the 4nonimizer service"
 		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
-		echo -e "    ${CYANCYAN}update_app${NC}: Update this program via git"
+		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy on port 8118 (BETA)"
 		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
