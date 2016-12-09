@@ -568,25 +568,54 @@ function test_availability ()
 function locate_online () {
 			
 			num=0
-			echo -e "\n${RED}[*] Please, select the country from which you want to connect (wait until the program finishes calculating the available countries): ${NC}\n"
 			array1=()
 			
-                        for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
-                        do
-                                num=`expr $num + 1`
-				ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
-				if [ -z "$ip" ]; then
-					ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
-					ip=$(dig +short $ip | awk '{ print ; exit }')
-				fi
-				codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
-				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
-			        if [ -z "$country" ] ; then country="unknown"; fi
-				array1+=($country)
-				echo -en "."
-                        done
+			RENAMEDFILES=$(ls /opt/4nonimizer/vpn/$provider/*renamed.ovpn 2> /dev/null | wc -l)
+		
+			if [ "$RENAMEDFILES" = "0" ] ; then
+			
+				echo -e "\n${RED}[*] Wait until the program finishes calculating the available countries and renaming files: ${NC}\n"
 
-			echo -en "${RED}Done! ${NC}\n\n"
+				for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
+				do
+					num=`expr $num + 1`
+					ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
+					if [ -z "$ip" ]; then
+						ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
+						ip=$(dig +short $ip | awk '{ print ; exit }')
+					fi
+					codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
+					country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
+					
+					if [ -z "$country" ] ; then country="unknown"; fi
+			
+					array1+=($country)
+					
+					mv "$lista" "${lista/\.ovpn/\-$country\-renamed\.ovpn}"
+					PAISES[$num]="${lista/\.ovpn/\-$country\-renamed\.ovpn}"
+					echo "${lista/\.ovpn/\-$country\-renamed\.ovpn}"			
+				done
+				
+				echo -en "${RED}Done! ${NC}\n\n"
+				
+				echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+
+			else
+			
+				echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+
+				for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $(NF-1)}' | cut -d'.' -f1 | sort -u);
+					do
+					num=`expr $num + 1`
+					if [ -z "$lista" ] ; then lista="unknown"; fi
+					
+					array1+=($lista)
+						echo  -ne "   ["$num"]-"$lista
+						PAISES[$num]=$lista
+				done
+		
+			fi
+			
 			sorted_unique_countries=$(echo "${array1[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 			
 			num2=0
@@ -632,7 +661,7 @@ function locate_online () {
 				echo "estas seleccionando continente ${CONT[$new]}"	
 			else
 				echo "You've selected to use the specific country ${PAISES[$new]}"
-			fi			
+			fi	
 }
 
 function locate_offline () {
