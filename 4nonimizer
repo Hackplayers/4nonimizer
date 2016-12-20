@@ -70,11 +70,11 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/pia/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/pia/*.ovpn | shuf -n 1)
 	fi
-	cd /opt/4nonimizer/vpn/vpnbook/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/pia/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
@@ -128,7 +128,6 @@ function start () {
 		IP_provider2=$(get_public_ip)
 	done
 	vpn_status
-	echo -e "\n${GREEN}[!]${NC} All done!\n"
 }
 
 function stop_nonet () {
@@ -582,7 +581,7 @@ function rename_ovpns_for_location () {
 					ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
 					if [ -z "$ip" ]; then
 						ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
-						ip=$(dig +short $ip | awk '{ print ; exit }')
+						ip=$(dig +short $ip | shuf -n 1 | awk '{ print ; exit }')
 					fi
 					codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
 					country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
@@ -713,6 +712,7 @@ function locate_online () {
 	
 				done	
 				
+
 			#echo "${array2[@]}"
 			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
 
@@ -789,7 +789,7 @@ function location () {
 		
      		;;            
                 torguard)
-			echo -e "sorry this options only run with tunnelbear vpn provider, for this moment"
+			locate_online
                 ;;
 		tunnelbear)
 		       num=0
@@ -879,6 +879,158 @@ function location () {
 		;;
 		cryptostorm)
 		locate_online
+		;;
+		pia)
+			array_pais=()
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $1}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				if [[ $lista == *"UK_"* ]]
+				then
+				  lista="UnitedKingdom";
+				fi
+				if [[ $lista == *"US_"* ]]
+				then
+				  lista="UnitedStates";
+				fi
+				if [[ $lista == *"CA_"* ]]
+				then
+				  lista="Canada";
+				fi
+				if [[ $lista == *"AU_"* ]]
+				then
+				  lista="Australia";
+				fi
+				if [ -z "$lista" ] ; then lista="unknown"; fi
+				array_pais+=($lista)
+			done
+
+			sorted_unique_countries=$(echo "${array_pais[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+			num=0				
+			 for i in ${sorted_unique_countries[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont_country+=($num)
+				COUN[$num]=$i
+
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $1}' | cut -d'.' -f1 | sort -u);
+                                do
+				if [[ $lista == *"UK_"* ]]
+				then
+				  lista="UnitedKingdom";
+				fi
+				if [[ $lista == *"US_"* ]]
+				then
+				  lista="UnitedStates";
+				fi
+				if [[ $lista == *"CA_"* ]]
+				then
+				  lista="Canada";
+				fi
+				if [[ $lista == *"AU_"* ]]
+				then
+				  lista="Australia";
+				fi
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 	
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+
+
+ 			echo -en "\n\nNumber > "
+                        read new
+			
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "estas seleccionando continente ${CONT[$new]}"
+				continentselected=${CONT[$new]}
+				for file in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn);
+                                do	
+
+					country=$(cd /opt/4nonimizer/vpn/$provider/; ls $file | awk -F'_' '{print $1}' | cut -d'.' -f1)
+
+					if [[ $country == *"UK"* ]]
+					then
+					  country="UnitedKingdom";
+					fi
+					if [[ $country == *"US"* ]]
+					then
+					  country="UnitedStates";
+					fi
+					if [[ $country == *"CA"* ]]
+					then
+					  country="Canada";
+					fi
+					if [[ $country == *"AU"* ]]
+					then
+					  country="Australia";
+					fi
+
+					continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$country -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+					tocontinentname
+	
+					#echo $file $country $continentcode $continent
+					if [ "$continent" == "$continentselected" ]; then
+						SELECTOVPN=$file
+						break
+					fi
+				done
+
+				echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+				sleep 3
+				restart
+				
+			else
+			echo "You've selected to use the specific country ${COUN[$new]}"
+			countryselected=${COUN[$new]} 
+			if [[ "$countryselected" == "unknown" ]]; then
+				/opt/4nonimizer/4nonimizer change_ip
+				break
+			fi
+
+			if [[ $countryselected == *"UnitedKingdom"* ]]
+				then
+				  countryselected="UK_";
+				fi
+				if [[ $countryselected == *"UnitedStates"* ]]
+				then
+				  countryselected="US_";
+				fi
+				if [[ $countryselected == *"Canada"* ]]
+				then
+				  countryselected="CA_";
+				fi
+				if [[ $countryselected == *"Australia"* ]]
+				then
+				  countryselected="AU_";
+				fi
+	
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+
+			fi
+			
 		;;
                 *)
 			echo -e "Error!!"
