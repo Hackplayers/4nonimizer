@@ -540,22 +540,22 @@ function test_availability ()
 				#</dev/tcp/$checkedip/$checkedport
 				#if [ "$?" -ne 0 ]; then
 				#option 3
-				open=`nmap -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				open=`nmap --version-light --min-rate 10000 -p $checkedport $checkedip  | grep "$checkedport" | grep open`
 				if [ -z "$open" ]; then
-					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
 					rm $file
 				else
-					echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is available"
 				fi
 				fi
 				if [[ $checkedprotocol = *"udp"* ]]
 				then
-				open=`nmap -sU -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				open=`nmap --version-light --min-rate 10000 -sU -p $checkedport $checkedip  | grep "$checkedport" | grep open`
 				if [ -z "$open" ]; then
-					echo "KO! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
 				        rm $file
 				else
-				        echo "Ok! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				        echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is available"
 			        fi
 				fi
 			done
@@ -1068,6 +1068,29 @@ esac
 	
 }
 
+enableboot(){
+	asciilogo
+	if [ -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+        	echo -e "\n${RED}[*]${NC} 4nonimizer is enable to boot!\n"
+	else 
+		echo -e "\n${RED}[*]${NC} Installing 4nonimizer for boot!\n"
+		systemctl enable 4non.service
+		 echo -e "\n${RED}[*]${NC} Done!\n"
+	fi 
+}
+
+disableboot(){
+        asciilogo
+	if [ -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then 
+		echo -e "\n${RED}[*]${NC} Uninstalling 4nonimizer for boot!\n"
+		systemctl disable 4non.service 
+		echo -e "\n${RED}[*]${NC} Done!\n"
+	else 
+		echo -e "\n${RED}[*]${NC} 4nonimizer is not enabled in boot!\n"; 
+	fi	
+}
+
+
 # main exec
 asciilogo
 complete -F autocom -o default 4nonimizer
@@ -1077,7 +1100,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -1100,6 +1123,8 @@ case $1 in
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
 		echo -e "    ${CYAN}location${NC}: ${RED}NEW!${NC} Now you can select a specific country or continent of the vpn peer"
+		echo -e "    ${CYAN}enableboot${NC}: ${RED}NEW!${NC} Now you can enable service in boot"
+		echo -e "    ${CYAN}disableboot${NC}: ${RED}NEW!${NC} Now you can disable service in boot"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
