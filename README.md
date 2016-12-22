@@ -40,6 +40,9 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**browser**: Fire up a firefox browser with profile privoxy -> tor  
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**test_availability**: Check peers availability and delete ovpn file if the IP/service is unreachable  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location${NC}**: Now you can select a specific country or continent of the vpn peer"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot${NC}**: You can enable service in boot"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot${NC}**: You can disable service in boot" 
   
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
@@ -63,6 +66,10 @@ Currently it supports the following VPN providers:
 \- FreeVPN <https://freevpn.me/>
 
 \- TunnelBear <https://www.tunnelbear.com/>
+
+\- Cryptostrom <https://cryptostorm.is/>
+
+\- PIA <https://www.privateinternetaccess.com/>
 
 # Install a new VPN
 
@@ -121,6 +128,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.00-beta | .bye-world! | 5/10/2016    
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | . using-latin-i | 17/10/2016 
+ 1.04-beta | .locateit | 22/12/2016
  
 ¡4nonimize the world!
 
@@ -175,7 +183,9 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**browser**: Fire up a firefox browser with profile privoxy -> tor  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**test_availability**: Check peers availability and delete ovpn file if the IP/service is unreachable  
-  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location${NC}**: Now you can select a specific country or continent of the vpn peer"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot${NC}**: You can enable service in boot"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot${NC}**: You can disable service in boot"  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)   
 
 
@@ -260,6 +270,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.00-beta | .bye-world! | 5/10/2016    
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | . using-latin-i | 17/10/2016 
+ 1.04-beta | .locateit | 22/12/2016
  
 ¡4nonimiza el mundo!
 
