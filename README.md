@@ -127,7 +127,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  --- | --- | ---  
  1.00-beta | .bye-world! | 5/10/2016    
  1.02-beta | .evol-time  | 11/10/2016   
- 1.03-beta | . using-latin-i | 17/10/2016 
+ 1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
  
 ¡4nonimize the world!
@@ -273,7 +273,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  --- | --- | ---  
  1.00-beta | .bye-world! | 5/10/2016    
  1.02-beta | .evol-time  | 11/10/2016   
- 1.03-beta | . using-latin-i | 17/10/2016 
+ 1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
  
 ¡4nonimiza el mundo!
