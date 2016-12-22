@@ -22,7 +22,7 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
         \___  | | | | (_) | | | | | | | | | | |/ /  __/ |
             |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|
                                            By Carlos Antonini & Vicente Motos
-                                           Version: 1.03-beta
+                                           Version: 1.04-beta
 
 Usage: 4nonymizer **\<parameter\>**  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
@@ -40,9 +40,9 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**browser**: Fire up a firefox browser with profile privoxy -> tor  
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**test_availability**: Check peers availability and delete ovpn file if the IP/service is unreachable  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location${NC}**: Now you can select a specific country or continent of the vpn peer"
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot${NC}**: You can enable service in boot"
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot${NC}**: You can disable service in boot" 
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location$**: Now you can select a specific country or continent of the vpn peer"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot$**: You can enable service in boot"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot$**: You can disable service in boot" 
   
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
@@ -165,7 +165,7 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
         \___  | | | | (_) | | | | | | | | | | |/ /  __/ |
             |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|
                                            By Carlos Antonini & Vicente Motos
-                                           Version: 1.03-beta
+                                           Version: 1.04-beta
 
 Usage: 4nonymizer **\<parameter\>**  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
@@ -183,9 +183,9 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**proxychains4**: Install and configure proxychains4 for default in the system  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**browser**: Fire up a firefox browser with profile privoxy -> tor  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**test_availability**: Check peers availability and delete ovpn file if the IP/service is unreachable  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location${NC}**: Now you can select a specific country or continent of the vpn peer"
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot${NC}**: You can enable service in boot"
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot${NC}**: You can disable service in boot"  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location$**: Now you can select a specific country or continent of the vpn peer"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot$**: You can enable service in boot"
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot$**: You can disable service in boot"  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)   
 
 
@@ -209,6 +209,10 @@ Actualmente se soportan los siguientes proveedores VPN:
 \- FreeVPN <https://freevpn.me/>
 
 \- TunnelBear <https://www.tunnelbear.com/>
+
+\- Cryptostrom <https://cryptostorm.is/>
+
+\- PIA <https://www.privateinternetaccess.com/>
 
 
 # Instalar una nueva VPN
