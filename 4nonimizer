@@ -1123,8 +1123,8 @@ case $1 in
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
 		echo -e "    ${CYAN}location${NC}: ${RED}NEW!${NC} Now you can select a specific country or continent of the vpn peer"
-		echo -e "    ${CYAN}enableboot${NC}: ${RED}NEW!${NC} Now you can enable service in boot"
-		echo -e "    ${CYAN}disableboot${NC}: ${RED}NEW!${NC} Now you can disable service in boot"
+		echo -e "    ${CYAN}enableboot${NC}: ${RED}NEW!${NC} You can enable service in boot"
+		echo -e "    ${CYAN}disableboot${NC}: ${RED}NEW!${NC} You can disable service in boot"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
