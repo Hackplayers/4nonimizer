@@ -24,7 +24,7 @@ echo ""
 }
 
 function checkifinstalled () {
-if [  ! -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+if [  ! -f "/etc/systemd/system/4non.service" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
@@ -345,6 +345,7 @@ function uninstall () {
 	systemctl stop tor
 	systemctl disable tor
 	echo -e "\n${GREEN}[+]${NC} Deleting /opt/4nonimizer dir\n"
+	rm -rf /etc/systemd/system/4non.service
 	rm -rfv /opt/4nonimizer >& /dev/null
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5
 	echo -e "${GREEN}[+]${NC} Done! , Bye!\n"
