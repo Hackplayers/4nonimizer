@@ -4,6 +4,8 @@ It is a bash script for anonymizing the public IP used to browsing Internet, man
 
 This script is enabled as a service in systemd systems and uses a default vpn (VPNBook) at system startup.
 
+Since version 1.05 the dns resolution are throught DnsCrypt.
+
 
 # Installation 
 
@@ -129,6 +131,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
+ 1.05-beta | .encrypting | 03/01/2017
  
 ¡4nonimize the world!
 
@@ -142,6 +145,7 @@ Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con
 
 Este script se habilita como servicio en sistemas systemd y levanta la vpn por defecto (VPNBook) en el inicio del sistema.
 
+Desde la version 1.05 las resoluciones DNS se hacen a traver de DnsCrypt
 
 
 # Instalación 
@@ -275,6 +279,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
+ 1.05-beta | .encrypting | 03/01/2017
  
 ¡4nonimiza el mundo!
 
