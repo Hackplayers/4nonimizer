@@ -180,7 +180,7 @@ function install () {
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
-º		exit 1
+		exit 1
 		fi     
 	fi
 
