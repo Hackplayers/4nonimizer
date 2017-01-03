@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.04-beta"
+version="1.05-beta"
 
 clear
 CYAN='\e[34m'
@@ -108,7 +108,7 @@ function start () {
 		asciilogo
 		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..." 
 		start_logs_vpn
-		echo -ne "ok. \n" && sleep 3
+		echo -ne "ok. \n"
 	       break
 	  fi     
 
@@ -123,6 +123,14 @@ function start () {
 	  fi
 	  
 	done
+	  
+	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
+
+	enable-dnscrypt
+	sleep 3
+	echo -ne "ok.\n"
+	sleep 1
+	
 	IP_provider2=$(get_public_ip)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
 		IP_provider2=$(get_public_ip)
@@ -171,12 +179,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix unzip
+		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip 
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip
+		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -419,7 +427,8 @@ function vpn_status () {
 			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
 			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 			echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
-			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')\n"
+			echo -e "DNSCrypt:\n$(nslookup www.google.es | awk 'NR==1,NR==2')\n"
 			break
 		fi
 	  fi     
@@ -1087,6 +1096,19 @@ disableboot(){
 	fi	
 }
 
+enable-dnscrypt(){
+	if [ -f "/etc/systemd/system/multi-user.target.wants/dnscryp-proxy.service"  ]; then
+		systemctl restart dnscrypt-proxy
+		sleep 3
+		netstat -putona | egrep -e dnscrypt -e 53 | egrep -E 53 | awk '{print $4}' | sort -u | cut -d':' -f1 | awk '{print "nameserver "$1}' > /etc/resolv.conf
+	else
+		systemctl enable dnscrypt-proxy
+		systemctl start dnscrypt-proxy
+		sleep 3
+		netstat -putona | egrep -e dnscrypt -e 53 | egrep -E 53 | awk '{print $4}' | sort -u | cut -d':' -f1 | awk '{print "nameserver "$1}' > /etc/resolv.conf
+	fi
+	
+}
 
 # main exec
 asciilogo
