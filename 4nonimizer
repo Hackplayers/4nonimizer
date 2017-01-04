@@ -392,6 +392,22 @@ function update_app () {
 	asciilogo
 	echo -e "\n${RED}[*]${NC} Updating repository from Git\n"
 	cd /opt/4nonimizer/ ; git pull origin master;
+	
+	packages_array=( curl whois openvpn easyrsa proxychains tor bzip2 nmap dos2unix unzip dnscrypt-proxy )
+	echo -e "\n${RED}[*]${NC} Checking if exist new packages in the system:"
+	for i in "${packages_array[@]}"
+	do
+		if ! [ -x "$(command -v $i)" ]; then
+				if which pacman >/dev/null; then
+					pacman -S $i
+				else
+					apt-get install $i
+				fi
+		else
+			echo -en "$i "
+		fi
+	done
+	echo -e "\n\n${GREEN}[*]${NC} 4nonimizer has been updated to version $version\n"
 }
 
 function vpn_status () {
