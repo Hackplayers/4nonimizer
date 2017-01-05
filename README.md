@@ -1,5 +1,5 @@
 
-![4nonimizer logo](./logo.png)  
+![4nonimizer logo](./images/logo.png)  
 
 
 
