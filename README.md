@@ -1,3 +1,6 @@
+
+![4nonimizer logo](./logo.png)
+
 # What is 4nonimizer?
 
 It is a bash script for anonymizing the public IP used to browsing Internet, managing the connection to TOR network and to different VPNs providers (OpenVPN), whether free or paid. By default, it includes several pre-configured VPN connections to different peers (.ovpn files) and download the credentials. Also, it records each used IP that we use every 300 seconds in log files.
