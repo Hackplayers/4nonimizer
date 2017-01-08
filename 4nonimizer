@@ -22,7 +22,7 @@ echo -e "${RED}                                           By Carlos Antonini & V
 echo -e "${RED}                                           Version: $version${NC}"
 echo ""
 }
-
+source "/opt/4nonimizer/libs/macchanger.l"
 function checkifinstalled () {
 if [  ! -f "/etc/systemd/system/4non.service" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
@@ -94,6 +94,7 @@ function start () {
 		comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	done
 	count2=5
+	changeMAC
 	until [ $count2 -le 0 ]
 	do
 	clear
