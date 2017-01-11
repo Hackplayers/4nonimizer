@@ -902,6 +902,9 @@ function location () {
 		cryptostorm)
 		locate_online
 		;;
+		slickvpn)
+		locate_online
+		;;
 		pia)
 			array_pais=()
 			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
