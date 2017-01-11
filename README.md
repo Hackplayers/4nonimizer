@@ -9,7 +9,7 @@ It is a bash script for anonymizing the public IP used to browsing Internet, man
 
 This script is enabled as a service in systemd systems and uses a default vpn (VPNBook) at system startup.
 
-Since version 1.05 the dns resolution are throught DnsCrypt.
+Since version 1.05 the dns resolution requests are done throught DnsCrypt.
 
 
 # Installation 
@@ -78,6 +78,8 @@ Currently it supports the following VPN providers:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
+\- SlickVPN <https://https://www.slickvpn.com>
+
 # Install a new VPN
 
 To install an additional vpn we have to use the following structure in order to the 4nonimizer be able to integrate and perform operations with it.
@@ -128,6 +130,14 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 \- http://www.kitploit.com/2016/10/4nonimizer-bash-script-for-anonymizing_10.html  
 \- https://www.digitalmunition.me/2016/10/4nonimizer-bash-script-anonymizing-public-ip-managing-connection-tor-different-vpns-providers/  
 
+# Videos
+
+\- Instalar 4nonimizer Kali Linux <https://www.youtube.com/watch?v=FQRuRmMkcDg>
+\- 4nonimizer Navegando de manera segura VPN (Kali Linux 2016.2) <https://www.youtube.com/watch?v=6GApaN7fSn8>
+\- devenir anonyme sur kali linux (4nonimizer) <https://www.youtube.com/watch?v=Y3puD1Bw3xA>
+\- Anonymizer - How To Hide Your IP address on Kali Linux 2016.2 (Change IP) <https://www.youtube.com/watch?v=MNdQD0DCG0A>
+\- Become Anonymous on kali linux 2016.2 <https://www.youtube.com/watch?v=IFnhm-rrnEg>
+
 # Versions
 
  Number | codename | date  
@@ -150,7 +160,7 @@ Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con
 
 Este script se habilita como servicio en sistemas systemd y levanta la vpn por defecto (VPNBook) en el inicio del sistema.
 
-Desde la version 1.05 las resoluciones DNS se hacen a traver de DnsCrypt
+Desde la version 1.05 las resoluciones DNS se hacen a través de DnsCrypt.
 
 
 # Instalación 
@@ -223,6 +233,7 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
+\- SlickVPN <https://https://www.slickvpn.com>
 
 # Instalar una nueva VPN
 
@@ -275,6 +286,14 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 \- http://www.redeszone.net//2016/10/07/4nonimizer-te-permitira-automatizar-la-conexion-diferentes-vpn-anonimizar-ip/  
 \- http://www.kitploit.com/2016/10/4nonimizer-bash-script-for-anonymizing_10.html  
 \- https://www.digitalmunition.me/2016/10/4nonimizer-bash-script-anonymizing-public-ip-managing-connection-tor-different-vpns-providers/  
+
+# Videos
+
+\- Instalar 4nonimizer Kali Linux <https://www.youtube.com/watch?v=FQRuRmMkcDg>
+\- 4nonimizer Navegando de manera segura VPN (Kali Linux 2016.2) <https://www.youtube.com/watch?v=6GApaN7fSn8>
+\- devenir anonyme sur kali linux (4nonimizer) <https://www.youtube.com/watch?v=Y3puD1Bw3xA>
+\- Anonymizer - How To Hide Your IP address on Kali Linux 2016.2 (Change IP) <https://www.youtube.com/watch?v=MNdQD0DCG0A>
+\- Become Anonymous on kali linux 2016.2 <https://www.youtube.com/watch?v=IFnhm-rrnEg>
 
 # Versiones
 
