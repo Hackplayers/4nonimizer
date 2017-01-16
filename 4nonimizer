@@ -124,13 +124,6 @@ function start () {
 	  
 	done
 	  
-	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
-
-	enable-dnscrypt
-	sleep 3
-	echo -ne "ok.\n"
-	sleep 1
-	
 	IP_provider2=$(get_public_ip)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
 		IP_provider2=$(get_public_ip)
@@ -179,12 +172,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip 
+		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev librtmp-dev proxychains tor bzip2 nmap dos2unix unzip 
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy
+		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -393,7 +386,7 @@ function update_app () {
 	echo -e "\n${RED}[*]${NC} Updating repository from Git\n"
 	cd /opt/4nonimizer/ ; git pull origin master;
 	
-	packages_array=( curl whois openvpn easy-rsa proxychains tor bzip2 nmap dos2unix unzip dnscrypt-proxy )
+	packages_array=( curl whois openvpn easy-rsa proxychains tor bzip2 nmap dos2unix unzip )
 	echo -e "\n${RED}[*]${NC} Checking if exist new packages in the system:"
 	for i in "${packages_array[@]}"
 	do
