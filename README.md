@@ -9,7 +9,7 @@ It is a bash script for anonymizing the public IP used to browsing Internet, man
 
 This script is enabled as a service in systemd systems and uses a default vpn (VPNBook) at system startup.
 
-Since version 1.05 the dns resolution requests are done throught DnsCrypt.
+Since version 1.05 the dns resolution requests are done throught DnsCrypt (disabled in 1.06 version for improving!).
 
 
 # Installation 
@@ -78,7 +78,9 @@ Currently it supports the following VPN providers:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://https://www.slickvpn.com>
+\- SlickVPN <https://https://www.slickvpn.com>  
+
+\- 7Proxies <https://https://www.7proxies.com/>  
 
 # Install a new VPN
 
@@ -146,7 +148,8 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
- 1.05-beta | .encrypting | 03/01/2017
+ 1.05-beta | .encrypting | 03/01/2017  
+ 1.06-beta | .1st-trial | 18/01/2017  
  
 ¡4nonimize the world!
 
@@ -156,12 +159,11 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 # ¿Que es 4nonimizer?
 
-Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con la que salimos a Internet mediante la gestión del proceso de conexión a TOR y a distintos proveedores VPNs (OpenVPN), ya sean gratuitos o de pago. Por defecto incluye preconfiguradas varias VPN gratuitas automatizando la conexión a distintos peers y la descarga de credenciales correspondientes. Además por defecto registra en ficheros logs la IP que usamos cada 300 segundos. 
+Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con la que salimos a Internet mediante la gestión del proceso de conexión a TOR y a distintos proveedores VPNs (OpenVPN), ya sean gratuitos o de pago. Por defecto incluye preconfiguradas varias VPN automatizando la conexión a distintos peers y la descarga de credenciales correspondientes. Además por defecto registra en ficheros logs la IP que usamos cada 300 segundos. 
 
 Este script se habilita como servicio en sistemas systemd y levanta la vpn por defecto (VPNBook) en el inicio del sistema.
 
-Desde la version 1.05 las resoluciones DNS se hacen a través de DnsCrypt.
-
+Desde la version 1.05 las resoluciones DNS se hacen a través de DnsCrypt (desactivado en la versión 1.06 para mejorarlo).
 
 # Instalación 
 
@@ -233,7 +235,10 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://https://www.slickvpn.com>
+\- SlickVPN <https://https://www.slickvpn.com>  
+
+\- 7Proxies <https://https://www.7proxies.com/>
+
 
 # Instalar una nueva VPN
 
@@ -303,7 +308,8 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.02-beta | .evol-time  | 11/10/2016   
  1.03-beta | .using-latin-i | 17/10/2016 
  1.04-beta | .locateit | 22/12/2016
- 1.05-beta | .encrypting | 03/01/2017
+ 1.05-beta | .encrypting | 03/01/2017  
+ 1.06-beta | .1st-trial | 18/01/2017  
  
 ¡4nonimiza el mundo!
 
