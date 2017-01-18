@@ -1146,7 +1146,7 @@ asciilogo
 complete -F autocom -o default 4nonimizer
 
 if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
-	echo -e "\n${RED}[*]${NC} You aren't root , please execute the installer with root permisions\n"
+	echo -e "\n${RED}[*]${NC} You aren't root , please execute the program with root permisions\n"
 else
 
 case $1 in
