@@ -29,7 +29,7 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
         \___  | | | | (_) | | | | | | | | | | |/ /  __/ |
             |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|
                                            By Carlos Antonini & Vicente Motos
-                                           Version: 1.05-beta
+                                           Version: 1.06-beta
 
 Usage: 4nonymizer **\<parameter\>**  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
@@ -186,7 +186,7 @@ Once installed 4nonymizer, enter the command **4nonimizer help** to get the help
         \___  | | | | (_) | | | | | | | | | | |/ /  __/ |
             |_/_| |_|\___/|_| |_|_|_| |_| |_|_/___\___|_|
                                            By Carlos Antonini & Vicente Motos
-                                           Version: 1.05-beta
+                                           Version: 1.06-beta
 
 Usage: 4nonymizer **\<parameter\>**  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**install**:  Install the script in run services  
