@@ -79,7 +79,7 @@ function start () {
 	if [ "$current_provider" == "7proxies" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
-	cd /opt/4nonimizer/vpn/7proxies/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
+	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
