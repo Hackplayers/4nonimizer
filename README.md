@@ -78,9 +78,9 @@ Currently it supports the following VPN providers:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://https://www.slickvpn.com>  
+\- SlickVPN <https://www.slickvpn.com>  
 
-\- 7Proxies <https://https://www.7proxies.com/>  
+\- 7Proxies <https://www.7proxies.com/>  
 
 # Install a new VPN
 
@@ -235,9 +235,9 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://https://www.slickvpn.com>  
+\- SlickVPN <https://www.slickvpn.com>  
 
-\- 7Proxies <https://https://www.7proxies.com/>
+\- 7Proxies <https://www.7proxies.com/>
 
 
 # Instalar una nueva VPN
