@@ -50,6 +50,8 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location**: Now you can select a specific country or continent of the vpn peer  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot**: You can enable service in boot  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot**: You can disable service in boot  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dns**: Enable dnscrypt service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dns**: Disable dnscrypt service    
   
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
@@ -206,7 +208,9 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**test_availability**: Check peers availability and delete ovpn file if the IP/service is unreachable  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location**: Now you can select a specific country or continent of the vpn peer 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot**: You can enable service in boot  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot**: You can disable service in boot  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot**: You can disable service in boot 
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dns**: Enable dnscrypt service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dns**: Disable dnscrypt service  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)   
 
 
