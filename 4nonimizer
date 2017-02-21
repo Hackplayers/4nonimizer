@@ -128,13 +128,7 @@ function start () {
 	  
 	done
 	  
-	#echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
 
-	#enable-dnscrypt
-	#sleep 3
-	#echo -ne "ok.\n"
-	#sleep 1
-	
 	IP_provider2=$(get_public_ip)
 	while [ $IP_provider1 = $IP_provider2 ] ; do 
 		IP_provider2=$(get_public_ip)
@@ -1127,7 +1121,16 @@ disableboot(){
 	fi	
 }
 
-enable-dnscrypt(){
+disable_dns(){
+	echo -ne "\n${GREEN}[+]${NC} Stoping DnsCrypt Service...\n"
+	systemctl stop dnscrypt-proxy.service
+	systemctl stop dnscrypt-proxy.socket
+	echo "nameserver 8.8.8.8" > /etc/resolv.conf
+	echo -ne "\n${GREEN}[+]${NC} Done!\n"
+}
+
+enable_dns(){
+	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
 	if [ -f "/etc/systemd/system/multi-user.target.wants/dnscryp-proxy.service"  ]; then
 		systemctl restart dnscrypt-proxy
 		sleep 3
@@ -1138,6 +1141,7 @@ enable-dnscrypt(){
 		sleep 3
 		netstat -putona | egrep -e dnscrypt -e 53 | egrep -E 53 | awk '{print $4}' | sort -u | cut -d':' -f1 | awk '{print "nameserver "$1}' > /etc/resolv.conf
 	fi
+	echo -ne "\n${GREEN}[+]${NC} Done!\n"
 	
 }
 
@@ -1150,7 +1154,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -1172,9 +1176,11 @@ case $1 in
 		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
 		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
 		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
-		echo -e "    ${CYAN}location${NC}: ${RED}NEW!${NC} Now you can select a specific country or continent of the vpn peer"
-		echo -e "    ${CYAN}enableboot${NC}: ${RED}NEW!${NC} You can enable service in boot"
-		echo -e "    ${CYAN}disableboot${NC}: ${RED}NEW!${NC} You can disable service in boot"
+		echo -e "    ${CYAN}location${NC}: Now you can select a specific country or continent of the vpn peer"
+		echo -e "    ${CYAN}enableboot${NC}: You can enable service in boot"
+		echo -e "    ${CYAN}disableboot${NC}: You can disable service in boot"
+		echo -e "    ${CYAN}enable_dns${NC}: Enable dnscrypt service"
+		echo -e "    ${CYAN}disable_dns${NC}: Disable dnscrypt service"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
