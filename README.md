@@ -5,11 +5,15 @@
 
 # What is 4nonimizer?
 
-It is a bash script for anonymizing the public IP used to browsing Internet, managing the connection to TOR network and to different VPNs providers (OpenVPN), whether free or paid. By default, it includes several pre-configured VPN connections to different peers (.ovpn files) and download the credentials. Also, it records each used IP that we use every 300 seconds in log files.
+It is a bash script for anonymizing the public IP used to browsing Internet, managing the connection to TOR network and to different VPNs providers (OpenVPN), whether free or paid. By default, it includes several pre-configured VPN connections to different peers (.ovpn files) and download the credentials (if the corresponding provider support it). Also, it records each used IP that we use every 300 seconds in log files.
 
 This script is enabled as a service in systemd systems and uses a default vpn (VPNBook) at system startup.
 
 Since version 1.06 the dns resolution requests are done throught DnsCrypt (enable and disable with option enable_dns or disable_dns)
+
+# Attention VPN Providers!  
+
+If you are a provider, you support OpenVPN and want your VPN to be integrated into 4nonimizer contact the developers at hackplayers @ ymail.com.
 
 
 # Installation 
@@ -50,8 +54,8 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location**: Now you can select a specific country or continent of the vpn peer  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot**: You can enable service in boot  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot**: You can disable service in boot  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dns**: Enable dnscrypt service  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dns**: Disable dnscrypt service    
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dnscrypt**: Enable dnscrypt service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dnscrypt**: Disable dnscrypt service    
   
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)  
 
@@ -161,11 +165,15 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 # ¿Que es 4nonimizer?
 
-Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con la que salimos a Internet mediante la gestión del proceso de conexión a TOR y a distintos proveedores VPNs (OpenVPN), ya sean gratuitos o de pago. Por defecto incluye preconfiguradas varias VPN automatizando la conexión a distintos peers y la descarga de credenciales correspondientes. Además por defecto registra en ficheros logs la IP que usamos cada 300 segundos. 
+Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con la que salimos a Internet mediante la gestión del proceso de conexión a TOR y a distintos proveedores VPNs (OpenVPN), ya sean gratuitos o de pago. Por defecto incluye preconfiguradas varias VPN automatizando la conexión a distintos peers y la descarga de credenciales correspondientes (si el proveedor lo soporta). Además por defecto registra en ficheros logs la IP que usamos cada 300 segundos. 
 
 Este script se habilita como servicio en sistemas systemd y levanta la vpn por defecto (VPNBook) en el inicio del sistema.
 
 Desde la version 1.06 las resoluciones DNS se hacen a través de DnsCrypt (habilitarlo y desabilitarlo con la opcion enable_dns o disable_dns).
+
+# ¡Atención proveedores de VPN!  
+
+Si eres un proveedor, soportas OpenVPN y quieres que tu VPN sea integrada en 4nonimizer contacta con los desarroladores en hackplayers @ ymail.com.
 
 # Instalación 
 
@@ -209,8 +217,8 @@ Usage: 4nonymizer **\<parameter\>**
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**location**: Now you can select a specific country or continent of the vpn peer 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enableboot**: You can enable service in boot  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disableboot**: You can disable service in boot 
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dns**: Enable dnscrypt service  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dns**: Disable dnscrypt service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**enable_dnscrypt*: Enable dnscrypt service  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**disable_dnscrypt**: Disable dnscrypt service  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**help**: Help (this screen)   
 
 
