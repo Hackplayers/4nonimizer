@@ -1121,7 +1121,7 @@ disableboot(){
 	fi	
 }
 
-disable_dns(){
+disable_dnscrypt(){
 	echo -ne "\n${GREEN}[+]${NC} Stoping DnsCrypt Service...\n"
 	systemctl stop dnscrypt-proxy.service
 	systemctl stop dnscrypt-proxy.socket
@@ -1129,7 +1129,7 @@ disable_dns(){
 	echo -ne "\n${GREEN}[+]${NC} Done!\n"
 }
 
-enable_dns(){
+enable_dnscrypt(){
 	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
 	if [ -f "/etc/systemd/system/multi-user.target.wants/dnscryp-proxy.service"  ]; then
 		systemctl restart dnscrypt-proxy
@@ -1154,7 +1154,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dnscrypt|disable_dnscrypt)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -1179,8 +1179,8 @@ case $1 in
 		echo -e "    ${CYAN}location${NC}: Now you can select a specific country or continent of the vpn peer"
 		echo -e "    ${CYAN}enableboot${NC}: You can enable service in boot"
 		echo -e "    ${CYAN}disableboot${NC}: You can disable service in boot"
-		echo -e "    ${CYAN}enable_dns${NC}: Enable dnscrypt service"
-		echo -e "    ${CYAN}disable_dns${NC}: Disable dnscrypt service"
+		echo -e "    ${CYAN}enable_dnscrypt${NC}: Enable dnscrypt service"
+		echo -e "    ${CYAN}disable_dnscrypt${NC}: Disable dnscrypt service"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
