@@ -62,23 +62,24 @@ function get_public_ip () {
 }
 
 function start () {
-
+	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	IP_provider1=$(get_public_ip)
 	asciilogo
 	checkifinstalled
-	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
-	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
+	if [ -z  $(ifconfig | grep tun | awk '{print $1}') ] ; then warning=" WARNING! you're NOT using a tunnel"; else warning=""; fi
+	echo -e "\n${GREEN}[+] Your current IP is $IP_provider1 ${RED}$warning...\n\n${GREEN}Starting 4nonimizer to hide your real IP using $current_provider...\n${NC}"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
-	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
-	fi
-	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/strongvpn/*.ovpn
+	SELECTOVPN=$(ls /opt/4nonimizer/vpn/$current_provider/*.ovpn | shuf -n 1) 
 	# providers which use certificates	
 	if [ "$current_provider" == "7proxies" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
+	if [ "$current_provider" == "strongvpn" ]; then
+		/opt/4nonimizer/vpn/strongvpn/vpn-get-pass-indiv.sh
+	fi
+	echo -e "${WHITE}[+] You're going to use the ovpn file $SELECTOVPN\n${NC}"
 	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
@@ -306,8 +307,6 @@ function change_provider () {
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
 			sed -i '73 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
-			sed -i '75 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
-			sed -i '77 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			stop
 			IP_provider1=$(get_public_ip)
@@ -812,6 +811,9 @@ function location () {
 		locate_offline
 		
      		;;            
+                strongvpn)
+			locate_online
+                ;;
                 torguard)
 			locate_online
                 ;;
