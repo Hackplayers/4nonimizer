@@ -62,24 +62,23 @@ function get_public_ip () {
 }
 
 function start () {
-	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+
 	IP_provider1=$(get_public_ip)
 	asciilogo
 	checkifinstalled
-	if [ -z  $(ifconfig | grep tun | awk '{print $1}') ] ; then warning=" WARNING! you're NOT using a tunnel"; else warning=""; fi
-	echo -e "\n${GREEN}[+] Your current IP is $IP_provider1 ${RED}$warning...\n\n${GREEN}Starting 4nonimizer to hide your real IP using $current_provider...\n${NC}"
+	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
+	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/strongvpn/*.ovpn
-	SELECTOVPN=$(ls /opt/4nonimizer/vpn/$current_provider/*.ovpn | shuf -n 1) 
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/nordvpn/*.ovpn
+	if [ -z "$SELECTOVPN" ]; then
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/nordvpn/*.ovpn | shuf -n 1)
+	fi
+	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# providers which use certificates	
 	if [ "$current_provider" == "7proxies" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
-	if [ "$current_provider" == "strongvpn" ]; then
-		/opt/4nonimizer/vpn/strongvpn/vpn-get-pass-indiv.sh
-	fi
-	echo -e "${WHITE}[+] You're going to use the ovpn file $SELECTOVPN\n${NC}"
 	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
 	systemctl start tor
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
@@ -307,6 +306,8 @@ function change_provider () {
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
 			sed -i '73 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '75 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '77 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			stop
 			IP_provider1=$(get_public_ip)
@@ -810,10 +811,49 @@ function location () {
 			
 		locate_offline
 		
-     		;;            
-                strongvpn)
-			locate_online
-                ;;
+     		;;
+		nordvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista | awk '{print toupper($0)}')
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u);
+                                do
+				countrycode=$(echo $lista | awk '{print toupper($0)}')
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;                        
                 torguard)
 			locate_online
                 ;;
@@ -1123,7 +1163,7 @@ disableboot(){
 	fi	
 }
 
-disable_dnscrypt(){
+disable_dns(){
 	echo -ne "\n${GREEN}[+]${NC} Stoping DnsCrypt Service...\n"
 	systemctl stop dnscrypt-proxy.service
 	systemctl stop dnscrypt-proxy.socket
@@ -1131,7 +1171,7 @@ disable_dnscrypt(){
 	echo -ne "\n${GREEN}[+]${NC} Done!\n"
 }
 
-enable_dnscrypt(){
+enable_dns(){
 	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
 	if [ -f "/etc/systemd/system/multi-user.target.wants/dnscryp-proxy.service"  ]; then
 		systemctl restart dnscrypt-proxy
@@ -1156,7 +1196,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dnscrypt|disable_dnscrypt)
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -1181,8 +1221,8 @@ case $1 in
 		echo -e "    ${CYAN}location${NC}: Now you can select a specific country or continent of the vpn peer"
 		echo -e "    ${CYAN}enableboot${NC}: You can enable service in boot"
 		echo -e "    ${CYAN}disableboot${NC}: You can disable service in boot"
-		echo -e "    ${CYAN}enable_dnscrypt${NC}: Enable dnscrypt service"
-		echo -e "    ${CYAN}disable_dnscrypt${NC}: Disable dnscrypt service"
+		echo -e "    ${CYAN}enable_dns${NC}: Enable dnscrypt service"
+		echo -e "    ${CYAN}disable_dns${NC}: Disable dnscrypt service"
 		echo -e "    ${CYAN}help${NC}: Help (this screen)"
 		
 		echo "" 
