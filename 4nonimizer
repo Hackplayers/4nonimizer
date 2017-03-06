@@ -70,9 +70,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/nordvpn/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/nordvpn/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# providers which use certificates	
@@ -641,21 +641,25 @@ function locate_offline () {
 					break
 				fi
 				tocontinentcode
-				#echo -e "\n$continentcode"
-				for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+				if [ "$provider" == "nordvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u | awk '{print toupper($0)}');
+				else
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+				fi
+
+				for l in $lista;
                                 do
-					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
 
 					if [[ "$continentcode" == "$continentcode2" ]] ; then 
-						array2+=($lista)
+						array2+=($l)
 					fi
 	
 				done	
 				
-			#echo "${array2[@]}"
 			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
-			#echo $countryselected && sleep 10
-			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep -i $countryselected | shuf -n 1)
 			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
 			sleep 3
 			restart
@@ -667,9 +671,7 @@ function locate_offline () {
 				/opt/4nonimizer/4nonimizer change_ip
 				break
 			fi
-			#echo ${PAISES[$new]} 						
-			#cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
-	
+
 			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)
 			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
 			sleep 3
@@ -736,8 +738,6 @@ function locate_online () {
 	
 				done	
 				
-
-			#echo "${array2[@]}"
 			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
 
 			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
