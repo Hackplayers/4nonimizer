@@ -88,6 +88,8 @@ Currently it supports the following VPN providers:
 
 \- 7Proxies <https://www.7proxies.com/>  
 
+\- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
+
 # Install a new VPN
 
 To install an additional vpn we have to use the following structure in order to the 4nonimizer be able to integrate and perform operations with it.
@@ -249,7 +251,9 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- SlickVPN <https://www.slickvpn.com>  
 
-\- 7Proxies <https://www.7proxies.com/>
+\- 7Proxies <https://www.7proxies.com/>  
+
+\- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
 
 
 # Instalar una nueva VPN
