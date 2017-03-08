@@ -88,6 +88,10 @@ Currently it supports the following VPN providers:
 
 \- 7Proxies <https://www.7proxies.com/>  
 
+\- StrongVPN <https://strongvpn.com/>  
+
+\- NordVPN <https://nordvpn.com>  
+
 \- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
 
 # Install a new VPN
@@ -252,6 +256,10 @@ Actualmente se soportan los siguientes proveedores VPN:
 \- SlickVPN <https://www.slickvpn.com>  
 
 \- 7Proxies <https://www.7proxies.com/>  
+
+\- StrongVPN <https://strongvpn.com/>  
+
+\- NordVPN <https://nordvpn.com>  
 
 \- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
 
