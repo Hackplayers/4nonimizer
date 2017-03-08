@@ -2,6 +2,10 @@
 ![4nonimizer logo](./images/logo.png)  
 
 
+### I like the 4nonimizer, please help us with whatever you want!   
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=24U9T8TTDXA24&lc=US&item_name=4nonimizer&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
+
 
 # What is 4nonimizer?
 
@@ -168,6 +172,13 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SPANISH TRANSLATION
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+![4nonimizer logo](./images/logo.png)   
+
+
+### Te gusta 4nonimizer, por favor ayudanos con lo que quieras!    
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=24U9T8TTDXA24&lc=US&item_name=4nonimizer&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
 # ¿Que es 4nonimizer?
 
