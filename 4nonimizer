@@ -301,7 +301,7 @@ function change_provider () {
 			echo -e "\n${RED}You cannot change to the same provider. If you want to change only the ip use '4nonymizer change_ip'${NC}\n"
 			exit 1
 		fi
-		if [ "$new" -lt "$num" ] ; then
+		if [ "$new" -le "$num" ] ; then
 			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
