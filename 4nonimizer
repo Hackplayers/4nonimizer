@@ -636,14 +636,18 @@ function locate_offline () {
 				tocontinentcode
 				if [ "$provider" == "nordvpn" ]; then
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u | awk '{print toupper($0)}');
+				elif [ "$provider" == "vyprvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sort -u);
 				else
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
 				fi
 
 				for l in $lista;
                                 do
+					if [ "$provider" == "vyprvpn" ]; then				
+						l=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$5 == r' | awk  -F $'\t' '{print $1}')
+					fi
 					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
-
 					if [[ "$continentcode" == "$continentcode2" ]] ; then 
 						array2+=($l)
 					fi
@@ -805,6 +809,46 @@ function location () {
 		locate_offline
 		
      		;;
+                vyprvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sed 's/ //g' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;
+
 		nordvpn)
 		
 		num=0
