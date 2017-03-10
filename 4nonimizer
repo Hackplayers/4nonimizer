@@ -550,20 +550,13 @@ function test_availability ()
 			fi
 			cd /opt/4nonimizer/vpn/$lista
 			dos2unix * &> /dev/null
-			for file in $(ls *.ovpn)
+			for file in $(ls *.ovpn 2> /dev/null)
 			do
 				checkedprotocol=$(grep -v '#' $file | grep -m 1 proto | awk '{print $2}')
 				checkedip=$(grep -v '#' $file | grep -m 1 remote | awk '{print $2}')
 				checkedport=$(grep -v '#' $file | grep -m 1 remote | awk '{print $3}')
 				if [[ $checkedprotocol = *"tcp"* ]]
 				then
-				#option 1
-				#result=$(nc -zv -w3 $checkedip $checkedport 2>&1 | grep succeeded);
-				#if [ -n "$result" ]; then
-				#option 2
-				#</dev/tcp/$checkedip/$checkedport
-				#if [ "$?" -ne 0 ]; then
-				#option 3
 				open=`nmap --version-light --min-rate 10000 -p $checkedport $checkedip  | grep "$checkedport" | grep open`
 				if [ -z "$open" ]; then
 					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
