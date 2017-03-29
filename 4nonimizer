@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.06-beta"
+version="1.07-beta"
 
 clear
 CYAN='\e[34m'
@@ -429,8 +429,13 @@ function vpn_status () {
 	  if [ "$key" == "T" ]; then	
 		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
 		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
-		echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
-		echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		currentip=$(curl -s ipecho.net/plain)
+		echo -e "IP: \t\t$currentip"
+		 if hash geoiplookup 2>/dev/null; then
+			echo -e "Country:\t$(geoiplookup $currentip | sed -n 1p | sed 's/.*, //')"
+		    else
+			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		fi		
 		echo  -e "\nTOR (using proxychains):"
 		proxychains  curl -s ipecho.net/plain 2> /dev/null
 		proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p'
