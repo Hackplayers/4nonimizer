@@ -41,24 +41,18 @@ function get_public_ip () {
 	    PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 	}
 	
-		if check_ip_format "$PUBLIC_IP"; then
-			echo "$PUBLIC_IP"
-			exit 1
-		fi
+	if check_ip_format "$PUBLIC_IP"; then
+		echo "$PUBLIC_IP"
+		exit 1
+	fi
 	
-	for curl_ip in http://ipecho.net/plain http://ipinfo.io/ip http://ifconfig.me/ip http://curlmyip.com; do
-		 PUBLIC_IP=$( curl -s $curl_ip )
-		if check_ip_format "$PUBLIC_IP"; then
-			break
-		fi
-	done
-
-	if ! check_ip_format "PUBLIC_IP"; then
+	PUBLIC_IP=$(curl -s http://whatismyip.akamai.com/)
+	if ! check_ip_format "$PUBLIC_IP"; then
 	    echo "Could not obtain your public IP address";
 	    exit 1;
 	fi
 
-	echo "$PUBLIC_IP"
+	echo $PUBLIC_IP
 }
 
 function start () {
@@ -74,11 +68,11 @@ function start () {
 	if [ -z "$SELECTOVPN" ]; then
 		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
 	fi
-	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
-	#sed -i '10s/^/block-outside-dns\n/' /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	#sed -i '10s/^/block-outside-dns\n/' /expressvpn/4nonimizer/vpn/expressvpn/*.ovpn
 	# providers which use certificates	
-	if [ "$current_provider" == "7proxies" ]; then
+	if [ "$current_provider" == "expressvpn" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
 	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
@@ -112,7 +106,9 @@ function start () {
 	    then
 		clear
 		asciilogo
-		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..." 
+		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..."
+		IPVPN1=$(get_public_ip)
+		echo -e "$IPVPN1 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
 		start_logs_vpn
 		echo -ne "ok. \n"
 	       break
@@ -122,6 +118,8 @@ function start () {
 		clear
 		asciilogo
 		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN+TOR)..." 
+		IPVPN1=$(get_public_ip)
+		echo -e "$IPVPN1 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
 		start_logs_vpn
 		start_logs_tor
 		echo -ne "ok. \n" && sleep 3
@@ -151,7 +149,7 @@ function stop_nonet () {
 	ifconfig $(ls /sys/class/net/ | grep -E '^en') down 2> /dev/null
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth') down 2> /dev/null
 	echo -e "\n${RED}[+]${NC} Your network interfaces have been shutdown.\n"
- 	echo -e "\n${RED}[!]${NC} Done!\n"
+
 }
 
 function stop () {
@@ -168,6 +166,21 @@ function restart () {
 	stop
 	start
 }
+
+function kill () {
+	asciilogo
+	checkifinstalled
+	systemctl stop tor
+	ps -uax | grep log- | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+	echo -e "\n${GREEN}Tunnel interfaces have been stopped!!!${NC}\n"
+	echo -e "\n${RED}[+]${NC} Killing 4nonimizer...\n"
+	for KILLPID in `ps ax | grep '4nonimizer' | awk ' { print $1;}'`; do 
+	  kill -9 $KILLPID;
+	done
+}
+
 
 function install () {
 	asciilogo
@@ -288,7 +301,7 @@ function change_provider () {
 	if [ ! -d "/opt/4nonimizer/vpn/" ]; then
 		echo -e "\n${RED} Install 4nonimizer first! (./4nonimizer install)\n${NC}"
 	else				
-		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 		echo -e "\n${GREEN} Currently you're using the $current_provider provider\n${NC}"
 		echo -e "\n${GREEN} Select the new VPN provider to change\n${NC}"
 		vpn_list
@@ -304,12 +317,12 @@ function change_provider () {
 			exit 1
 		fi
 		if [ "$new" -le "$num" ] ; then
-			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 			echo ""
 			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
-			sed -i '73 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
-			sed -i '75 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
-			sed -i '79 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '67 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '69 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '71 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
 			sleep 1
 			stop
 			IP_provider1=$(get_public_ip)
@@ -331,7 +344,7 @@ function change_ip () {
 	asciilogo
 	checkifinstalled
 	killall openvpn
-	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
+	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
 	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
 	IP_provider1=$(get_public_ip)
 	for i in {0..5..1}; do echo -en "."; sleep 1;  done
@@ -368,20 +381,19 @@ function reinstall () {
 }
 
 function start_logs_vpn () {
-#	IPREAL=172.124.22.55
 	SECS=300
-	sleep 5
-	IPVPN=$(get_public_ip)
-
-#	if [ $IPREAL == $IPVPN ] || [ $IPREAL == $IPTOR ]; then
-#	        ifconfig $(ifconfig | grep Ethernet -n3 | egrep -io "1-\w+" | awk -F'-' '{print $2}') down 2> /dev/null
-#	        ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
-#	        echo "PRIVACY ALARM!" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
-#	        echo "PRIVACY ALARM!" >> /opt/4nonimizer/logs/log-tor-`date +'%d-%m-%Y'`.log
-#	        exit 1
-#	fi
+	sleep 3
 	cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.log$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null
-	while true;do echo $IPVPN = `date` >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS ; done &
+	while true; do 
+		IPVPN2=$(get_public_ip)
+		if [ "$IPVPN1" == "$IPVPN2" ] ; then
+			echo -n "." >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS
+		else
+			echo -e "\n\n$IPVPN2 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS
+			IPVPN1=$(echo $IPVPN2)
+
+		fi
+	done &
 }
 
 function start_logs_tor () {
@@ -428,7 +440,7 @@ function vpn_status () {
 	read -s -n 1 -t 1 key  
 	  if [ "$key" == "T" ]; then	
 		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
-		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 		currentip=$(curl -s ipecho.net/plain)
 		echo -e "IP: \t\t$currentip"
 		 if hash geoiplookup 2>/dev/null; then
@@ -450,7 +462,7 @@ function vpn_status () {
 			exit 1
 		else 
 			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
-			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 			echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
 			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')\n"
 			#echo -e "DNSCrypt:\n$(nslookup www.google.es | awk 'NR==1,NR==2')\n"
@@ -770,7 +782,7 @@ function locate_online () {
 function location () {
 	asciilogo
 	checkifinstalled
-	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==73' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
+	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
 	echo -e "\nVPN Provider: \t $provider\n"
 
 	case $provider  in
@@ -1243,7 +1255,7 @@ if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
 else
 
 case $1 in
-	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
+	        start|stop|stop_nonet|kill|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
 		"$1" 
 		;;
 		help|-h|--help)
@@ -1259,6 +1271,7 @@ case $1 in
 		echo -e "    ${CYAN}start${NC}: Init the 4nonimizer service"
 		echo -e "    ${CYAN}stop${NC}: Stop the 4nonimizer service"
 		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
+		echo -e "    ${CYAN}kill${NC}: Stop the 4nonimizer service, shutdown network interfaces and kill process"
 		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
 		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
 		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy on port 8118 (BETA)"
