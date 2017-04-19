@@ -64,9 +64,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/expressvpn/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/expressvpn/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
@@ -108,7 +108,7 @@ function start () {
 		asciilogo
 		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..."
 		IPVPN1=$(get_public_ip)
-		echo -e "$IPVPN1 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
+		echo -e "\n$IPVPN1 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
 		start_logs_vpn
 		echo -ne "ok. \n"
 	       break
@@ -339,7 +339,6 @@ function change_ip () {
 		IP_provider2=$(get_public_ip)
 	done
         vpn_status
-        echo -e "\n${GREEN}[!]${NC} Done!"
 }
 
 function uninstall () {
@@ -374,7 +373,7 @@ function start_logs_vpn () {
 		if [ "$IPVPN1" == "$IPVPN2" ] ; then
 			echo -n "." >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS
 		else
-			echo -e "\n\n$IPVPN2 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS
+			echo -en "\n\n$IPVPN2 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log && sleep $SECS
 			IPVPN1=$(echo $IPVPN2)
 
 		fi
@@ -414,46 +413,43 @@ function update_app () {
 function vpn_status () {
 	asciilogo
 	checkifinstalled	
-	count=5	
-	until [ $count -le 0 ]
-	do
-	clear
-	asciilogo
 	echo -e "\n${GREEN}[+]${NC} We're going to confirm if your browsing IP has changed..."
-	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait $count secs." 
-        ((count--))
-	read -s -n 1 -t 1 key  
-	  if [ "$key" == "T" ]; then	
-		echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
+	echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
+	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	if [ -z "$comprobacion" ] ;then
+		echo -e "\n${RED}[*]${NC} You're NOT using a tunnel, probably your IP is not masked!!\n"
+		exit 1
+	else 
 		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
 		currentip=$(curl -s ipecho.net/plain)
 		echo -e "IP: \t\t$currentip"
-		 if hash geoiplookup 2>/dev/null; then
+		if hash geoiplookup 2>/dev/null; then
 			echo -e "Country:\t$(geoiplookup $currentip | sed -n 1p | sed 's/.*, //')"
-		    else
+		else
 			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
-		fi		
+		fi
+	fi
+	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait\n"
+	count=3	
+	until [ $count -le 0 ]
+	do
+	echo -n "."
+        ((count--))
+	read -s -n 1 -t 1 key  
+	  if [ "$key" == "T" ]; then	
 		echo  -e "\nTOR (using proxychains):"
-		proxychains  curl -s ipecho.net/plain 2> /dev/null
-		proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p'
+		echo -e "IP: \t\t$(proxychains  curl -s ipecho.net/plain 2> /dev/null | sed -n '2p')"
+		echo -e "Country:\t$(proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		echo -e "\ndone!\n"
 		break
 	  fi
 
 	if [ $count -eq 0 ]
 	    then
-		comprobacion=$(ifconfig | grep tun | awk '{print $1}')
-		if [ -z "$comprobacion" ] ;then
-			echo -e "\n${RED}[*]${NC} You're NOT using a tunnel, probably your IP is not masked!!\n"
-			exit 1
-		else 
-			echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
-			echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
-			echo -e "IP: \t\t$(curl -s ipecho.net/plain)"
-			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')\n"
+			echo -e "done!\n"
 			#echo -e "DNSCrypt:\n$(nslookup www.google.es | awk 'NR==1,NR==2')\n"
 			break
-		fi
-	  fi     
+	fi
 	done
 }
 
