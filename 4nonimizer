@@ -64,9 +64,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/cyberghost/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/cyberghost/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
