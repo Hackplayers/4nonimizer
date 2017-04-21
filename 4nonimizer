@@ -64,15 +64,15 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/cyberghost/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/cyberghost/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
-	#sed -i '10s/^/block-outside-dns\n/' /vpnbook/4nonimizer/vpn/vpnbook/*.ovpn
+	#sed -i '10s/^/block-outside-dns\n/' /expressvpn/4nonimizer/vpn/expressvpn/*.ovpn
 	# providers which use certificates	
-	if [ "$current_provider" == "vpnbook" ]; then
+	if [ "$current_provider" == "expressvpn" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
 	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
@@ -593,14 +593,19 @@ function rename_ovpns_for_location () {
 				echo -e "\n${RED}[*] Wait until the program finishes calculating the available countries and renaming files: ${NC}\n"
 
 				for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
-				do
+				do	
+					echo $lista
 					num=`expr $num + 1`
 					ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
 					if [ -z "$ip" ]; then
-						ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
-						ip=$(dig +short $ip | shuf -n 1 | awk '{ print ; exit }')
+						hostname=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
+						hostname2ip=$(dig +short $hostname | shuf -n 1 | awk '{ print ; exit }')
 					fi
-					codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
+					echo $hostname
+					echo $hostname2ip
+					codecountry=$(curl ipinfo.io/$hostname2ip | grep country | awk -F  "\"" '{print $4}')
+					echo $codecountry && sleep 3
+					#codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
 					country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
 					
 					if [ -z "$country" ] ; then country="unknown"; fi
@@ -767,6 +772,9 @@ function location () {
 	echo -e "\nVPN Provider: \t $provider\n"
 
 	case $provider  in
+                cyberghost)
+			locate_online
+                ;;
                 expressvpn)
 			locate_online
                 ;;
