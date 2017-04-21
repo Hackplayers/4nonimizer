@@ -594,18 +594,14 @@ function rename_ovpns_for_location () {
 
 				for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
 				do	
-					echo $lista
 					num=`expr $num + 1`
 					ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
 					if [ -z "$ip" ]; then
-						hostname=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
-						hostname2ip=$(dig +short $hostname | shuf -n 1 | awk '{ print ; exit }')
+						ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
+						ip=$(dig +short $ip | shuf -n 1 | awk '{ print ; exit }')
 					fi
-					echo $hostname
-					echo $hostname2ip
-					codecountry=$(curl ipinfo.io/$hostname2ip | grep country | awk -F  "\"" '{print $4}')
-					echo $codecountry && sleep 3
-					#codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
+					#codecountry=$(curl ipinfo.io/$ip | grep country | awk -F  "\"" '{print $4}')
+					codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
 					country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
 					
 					if [ -z "$country" ] ; then country="unknown"; fi
