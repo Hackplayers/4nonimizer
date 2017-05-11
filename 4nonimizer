@@ -177,12 +177,12 @@ function install () {
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip geoip-bin geoip-database
+		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip 
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] ; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
-		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy geoip-bin geoip-database
+		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy
 	else
 		echo ""
 		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
@@ -628,7 +628,7 @@ function locate_offline () {
                         read new
 			
 			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
-				echo "estas seleccionando continente ${CONT[$new]}"
+				echo "you're selected the continent ${CONT[$new]}"
 				continentname=${CONT[$new]}
 				if [[ "$continentname" == "unknown" ]]; then
 					/opt/4nonimizer/4nonimizer change_ip
@@ -639,6 +639,8 @@ function locate_offline () {
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u | awk '{print toupper($0)}');
 				elif [ "$provider" == "vyprvpn" ]; then
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sort -u);
+				elif [ "$provider" == "ipvanish" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
 				else
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
 				fi
@@ -855,6 +857,49 @@ function location () {
 		locate_offline
 		
      		;;
+
+		ipvanish)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista)
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+                                do
+				countrycode=$(echo $lista)
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;    
 
 		nordvpn)
 		
