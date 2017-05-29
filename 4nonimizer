@@ -173,7 +173,7 @@ function install () {
 		echo -e "\n${RED}[*]${NC} 4nonimizer is already installed. Perhaps do you want reinstalling or updating the app?\n"
 	exit 1
 	fi
-	if [ `lsb_release -i | awk '{print $3}'` = Kali ] ||  [ `lsb_release -i | awk '{print $3}'` = 4nonOS ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] || [ `lsb_release -i | awk '{print $3}'` = Parrot ] || [ `lsb_release -i | awk '{print $3}'` = Raspbian ] || [ `lsb_release -i | awk '{print $3}'` = LinuxMint ]; then
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] ||  [ `lsb_release -i | awk '{print $3}'` = 4nonOS ] ||  [ `lsb_release -i | awk '{print $3}'` = neon ]  || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] || [ `lsb_release -i | awk '{print $3}'` = Parrot ] || [ `lsb_release -i | awk '{print $3}'` = Raspbian ] || [ `lsb_release -i | awk '{print $3}'` = LinuxMint ]; then
 		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
 		apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
