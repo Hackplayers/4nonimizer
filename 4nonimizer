@@ -195,19 +195,14 @@ function install () {
         chmod +x /opt/4nonimizer/vpn/*/*.sh
 	
 	mkdir /opt/4nonimizer/logs 2> /dev/null
-	count0=5
-	echo -ne "\n${GREEN}[+]${NC} Enter \"I\" if you want to install tor and 4nonimizer (4non.service) or wait to continue..." 
-        ((count0--))
-	read -s -n 1 -t 1 key
 
-	  if [ "$key" == "I" ]; then
-		echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
-		cp /opt/4nonimizer/4non.service /etc/systemd/system/
-		chmod +x /etc/systemd/system/4non.service
-		systemctl enable tor 
-		systemctl start tor
-		systemctl enable 4non.service
-	  fi
+	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
+	cp /opt/4nonimizer/4non.service /etc/systemd/system/
+	chmod +x /etc/systemd/system/4non.service
+	systemctl enable tor 
+	systemctl start tor
+	systemctl enable 4non.service
+
         for i in {0..5..1}; do echo -en "."; sleep 1;  done
 	count=5
 	until [ $count -le 0 ]
@@ -357,13 +352,12 @@ function change_ip () {
 function uninstall () {
 	asciilogo
 	checkifinstalled
-	if [  -f "/etc/systemd/system/4non.service" ]; then
-		echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
-		systemctl stop 4non.service
-		systemctl disable 4non.service
-		systemctl stop tor
-		systemctl disable tor
-	fi
+
+	echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
+	systemctl stop 4non.service
+	systemctl disable 4non.service
+	systemctl stop tor
+	systemctl disable tor
 	
 	echo -e "\n${GREEN}[+]${NC} Deleting /opt/4nonimizer dir\n"
 	rm -rf /etc/systemd/system/4non.service
