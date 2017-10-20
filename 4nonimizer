@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.07-beta"
+version="1.08-beta"
 
 clear
 CYAN='\e[34m'
@@ -24,7 +24,7 @@ echo ""
 }
 
 function checkifinstalled () {
-if [  ! -f "/etc/systemd/system/4non.service" ]; then
+if [  ! -f "/opt/4nonimizer/4nonimizer" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
@@ -174,13 +174,13 @@ function install () {
 	exit 1
 	fi
 	if [ `lsb_release -i | awk '{print $3}'` = Kali ] ||  [ `lsb_release -i | awk '{print $3}'` = 4nonOS ] ||  [ `lsb_release -i | awk '{print $3}'` = neon ]  || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] || [ `lsb_release -i | awk '{print $3}'` = Parrot ] || [ `lsb_release -i | awk '{print $3}'` = Raspbian ] || [ `lsb_release -i | awk '{print $3}'` = LinuxMint ]; then
-		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
-		apt-get update
+		#echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		#apt-get update
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
 		apt-get install curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip 
 	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] || [ `lsb_release -i | awk '{print $3}'` = antergos ] ; then
-		echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
-		pacman -Syu
+		#echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		#pacman -Syu
 		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
 		pacman -S --noconfirm curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy
 	else
@@ -190,16 +190,24 @@ function install () {
 		fi     
 	fi
 
-	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
-	cp -r ../4nonimizer /opt/
-	ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
-	cp /opt/4nonimizer/4non.service /etc/systemd/system/
-	chmod +x /opt/4nonimizer/vpn/*/*.sh
-	chmod +x /etc/systemd/system/4non.service
+        cp -r ../4nonimizer* /opt/4nonimizer
+        ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
+        chmod +x /opt/4nonimizer/vpn/*/*.sh
+	
 	mkdir /opt/4nonimizer/logs 2> /dev/null
-	systemctl enable tor 
-	systemctl start tor
-	systemctl enable 4non.service
+	count0=5
+	echo -ne "\n${GREEN}[+]${NC} Enter \"I\" if you want to install tor and 4nonimizer (4non.service) or wait to continue..." 
+        ((count0--))
+	read -s -n 1 -t 1 key
+
+	  if [ "$key" == "I" ]; then
+		echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
+		cp /opt/4nonimizer/4non.service /etc/systemd/system/
+		chmod +x /etc/systemd/system/4non.service
+		systemctl enable tor 
+		systemctl start tor
+		systemctl enable 4non.service
+	  fi
         for i in {0..5..1}; do echo -en "."; sleep 1;  done
 	count=5
 	until [ $count -le 0 ]
@@ -211,8 +219,13 @@ function install () {
 
 	  if [ $count -eq 0 ]
 	    then
-		echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (VpnBook)\n"
-	        cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
+		if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+			echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (VpnBook)\n"
+	        	cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
+		else
+		  	echo "You do NOT have Internet connection. Abort!"
+			exit
+		fi
 	       break
 	  fi     
 
@@ -344,11 +357,14 @@ function change_ip () {
 function uninstall () {
 	asciilogo
 	checkifinstalled
-	echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
-	systemctl stop 4non.service
-	systemctl disable 4non.service
-	systemctl stop tor
-	systemctl disable tor
+	if [  -f "/etc/systemd/system/4non.service" ]; then
+		echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
+		systemctl stop 4non.service
+		systemctl disable 4non.service
+		systemctl stop tor
+		systemctl disable tor
+	fi
+	
 	echo -e "\n${GREEN}[+]${NC} Deleting /opt/4nonimizer dir\n"
 	rm -rf /etc/systemd/system/4non.service
 	rm -rfv /opt/4nonimizer >& /dev/null
@@ -651,7 +667,7 @@ function locate_offline () {
 						l=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$5 == r' | awk  -F $'\t' '{print $1}' | sed 's/ //g' )
 					fi
 					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
-					if [[ "$continentcode" == "$continentcode2" ]] ; then 
+					if [[ "$continentcode" == "$continentcode2" ]]; then 
 						array2+=($l)
 					fi
 	
@@ -777,6 +793,9 @@ function location () {
 			locate_online
                 ;;
                 freevpn)
+			locate_online
+                ;;
+                protonvpn)
 			locate_online
                 ;;
                 hidemyass)

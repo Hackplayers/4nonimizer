@@ -1,0 +1,52 @@
+Fri Oct 20 12:33:38 2017 WARNING: file 'pass.txt' is group or others accessible
+Fri Oct 20 12:33:38 2017 OpenVPN 2.4.0 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] built on Jun 22 2017
+Fri Oct 20 12:33:38 2017 library versions: OpenSSL 1.0.2g  1 Mar 2016, LZO 2.08
+Fri Oct 20 12:33:38 2017 WARNING: --ping should normally be used with --ping-restart or --ping-exit
+Fri Oct 20 12:33:38 2017 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
+Fri Oct 20 12:33:38 2017 Outgoing Control Channel Authentication: Using 512 bit message hash 'SHA512' for HMAC authentication
+Fri Oct 20 12:33:38 2017 Incoming Control Channel Authentication: Using 512 bit message hash 'SHA512' for HMAC authentication
+Fri Oct 20 12:33:38 2017 TCP/UDP: Preserving recently used remote address: [AF_INET]46.166.142.217:1194
+Fri Oct 20 12:33:38 2017 Socket Buffers: R=[212992->212992] S=[212992->212992]
+Fri Oct 20 12:33:38 2017 UDP link local: (not bound)
+Fri Oct 20 12:33:38 2017 UDP link remote: [AF_INET]46.166.142.217:1194
+Fri Oct 20 12:33:38 2017 TLS: Initial packet from [AF_INET]46.166.142.217:1194, sid=225eab83 1a889721
+Fri Oct 20 12:33:38 2017 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
+Fri Oct 20 12:33:38 2017 VERIFY OK: depth=2, C=CH, O=ProtonVPN AG, CN=ProtonVPN Root CA
+Fri Oct 20 12:33:38 2017 VERIFY OK: depth=1, C=CH, O=ProtonVPN AG, CN=ProtonVPN Intermediate CA 1
+Fri Oct 20 12:33:38 2017 Validating certificate key usage
+Fri Oct 20 12:33:38 2017 ++ Certificate has key usage  00a0, expects 00a0
+Fri Oct 20 12:33:38 2017 VERIFY KU OK
+Fri Oct 20 12:33:38 2017 Validating certificate extended key usage
+Fri Oct 20 12:33:38 2017 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Fri Oct 20 12:33:38 2017 VERIFY EKU OK
+Fri Oct 20 12:33:38 2017 VERIFY OK: depth=0, CN=nl-132.protonvpn.com
+Fri Oct 20 12:33:39 2017 Control Channel: TLSv1.2, cipher TLSv1/SSLv3 ECDHE-RSA-AES256-GCM-SHA384, 2048 bit RSA
+Fri Oct 20 12:33:39 2017 [nl-132.protonvpn.com] Peer Connection Initiated with [AF_INET]46.166.142.217:1194
+Fri Oct 20 12:33:40 2017 SENT CONTROL [nl-132.protonvpn.com]: 'PUSH_REQUEST' (status=1)
+Fri Oct 20 12:33:40 2017 PUSH: Received control message: 'PUSH_REPLY,redirect-gateway def1,dhcp-option DNS 10.8.0.1,sndbuf 524288,rcvbuf 524288,explicit-exit-notify,route-gateway 10.8.0.1,topology subnet,ping 5,ping-restart 30,ifconfig 10.8.0.26 255.255.0.0,peer-id 23,cipher AES-256-GCM'
+Fri Oct 20 12:33:40 2017 Option 'explicit-exit-notify' in [PUSH-OPTIONS]:5 is ignored by previous <connection> blocks 
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: timers and/or timeouts modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: explicit notify parm(s) modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: --sndbuf/--rcvbuf options modified
+Fri Oct 20 12:33:40 2017 Socket Buffers: R=[212992->425984] S=[212992->425984]
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: --ifconfig/up options modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: route options modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: route-related options modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: --ip-win32 and/or --dhcp-option options modified
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: peer-id set
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: adjusting link_mtu to 1657
+Fri Oct 20 12:33:40 2017 OPTIONS IMPORT: data channel crypto options modified
+Fri Oct 20 12:33:40 2017 Data Channel Encrypt: Cipher 'AES-256-GCM' initialized with 256 bit key
+Fri Oct 20 12:33:40 2017 Data Channel Decrypt: Cipher 'AES-256-GCM' initialized with 256 bit key
+Fri Oct 20 12:33:40 2017 ROUTE_GATEWAY 192.168.207.254/255.255.255.0 IFACE=enp0s31f6 HWADDR=50:7b:9d:d5:0b:85
+Fri Oct 20 12:33:40 2017 TUN/TAP device tun0 opened
+Fri Oct 20 12:33:40 2017 TUN/TAP TX queue length set to 100
+Fri Oct 20 12:33:40 2017 do_ifconfig, tt->did_ifconfig_ipv6_setup=0
+Fri Oct 20 12:33:40 2017 /sbin/ip link set dev tun0 up mtu 1500
+Fri Oct 20 12:33:40 2017 /sbin/ip addr add dev tun0 10.8.0.26/16 broadcast 10.8.255.255
+Fri Oct 20 12:33:40 2017 /etc/openvpn/update-resolv-conf tun0 1500 1585 10.8.0.26 255.255.0.0 init
+dhcp-option DNS 10.8.0.1
+Fri Oct 20 12:33:40 2017 /sbin/ip route add 46.166.142.217/32 via 192.168.207.254
+Fri Oct 20 12:33:40 2017 /sbin/ip route add 0.0.0.0/1 via 10.8.0.1
+Fri Oct 20 12:33:40 2017 /sbin/ip route add 128.0.0.0/1 via 10.8.0.1
+Fri Oct 20 12:33:40 2017 Initialization Sequence Completed
