@@ -24,7 +24,7 @@ echo ""
 }
 
 function checkifinstalled () {
-if [  ! -f "/opt/4nonimizer/4nonimizer" ]; then
+if [  ! -f "/etc/systemd/system/4non.service" ]; then
 	echo -e "\n${RED}[*]${NC} You must install 4nonimizer first!\n"
 	exit 1
 fi
@@ -64,9 +64,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "10iauth-user-pass pass.txt" /opt/4nonimizer/vpn/expressvpn/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/expressvpn/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
@@ -197,8 +197,12 @@ function install () {
 	mkdir /opt/4nonimizer/logs 2> /dev/null
 
 	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
+	cp -r ../4nonimizer /opt/
+	ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
 	cp /opt/4nonimizer/4non.service /etc/systemd/system/
+	chmod +x /opt/4nonimizer/vpn/*/*.sh
 	chmod +x /etc/systemd/system/4non.service
+
 	systemctl enable tor 
 	systemctl start tor
 	systemctl enable 4non.service
