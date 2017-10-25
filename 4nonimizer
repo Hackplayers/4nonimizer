@@ -189,20 +189,14 @@ function install () {
 		exit 1
 		fi     
 	fi
-
-        cp -r ../4nonimizer* /opt/4nonimizer
-        ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
-        chmod +x /opt/4nonimizer/vpn/*/*.sh
 	
-	mkdir /opt/4nonimizer/logs 2> /dev/null
-
 	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
 	cp -r ../4nonimizer /opt/
 	ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
+	chmod +x /opt/4nonimizer/vpn/*/*.sh	
+	mkdir /opt/4nonimizer/logs 2> /dev/null
 	cp /opt/4nonimizer/4non.service /etc/systemd/system/
-	chmod +x /opt/4nonimizer/vpn/*/*.sh
 	chmod +x /etc/systemd/system/4non.service
-
 	systemctl enable tor 
 	systemctl start tor
 	systemctl enable 4non.service
