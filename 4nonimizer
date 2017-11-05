@@ -401,7 +401,7 @@ function update_app () {
 	echo -e "\n${RED}[*]${NC} Updating repository from Git\n"
 	cd /opt/4nonimizer/ ; git pull origin master;
 	
-	packages_array=( curl whois openvpn easyrsa proxychains tor bzip2 nmap dos2unix unzip dnscrypt-proxy )
+	packages_array=( curl whois openvpn easy-rsa proxychains tor bzip2 nmap dos2unix unzip dnscrypt-proxy )
 	echo -e "\n${RED}[*]${NC} Checking if exist new packages in the system:"
 	for i in "${packages_array[@]}"
 	do
