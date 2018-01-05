@@ -141,7 +141,7 @@ function stop_nonet () {
 	checkifinstalled
  	echo -e "\n${RED}[+]${NC} Stopping services\n"
 	systemctl stop tor
-	ps -uax | grep log- | awk '{print $2}' | xargs kill -9
+	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	#ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) down
@@ -156,7 +156,7 @@ function stop () {
 	asciilogo
 	checkifinstalled
 	systemctl stop tor
-	ps -uax | grep log- | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	echo -e "\n${GREEN}Tunnel interfaces have been stopped!!!${NC}\n"
