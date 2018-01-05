@@ -75,8 +75,12 @@ function start () {
 	if [ "$current_provider" == "vpnbook" ]; then
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
-	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null & 
-	systemctl start tor
+	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null &   
+	
+	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+		systemctl start tor
+	fi
+	
 	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
 	while [ -z $comprobacion ] ; do
 		for i in {0..1..30}; 
