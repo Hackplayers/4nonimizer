@@ -77,7 +77,7 @@ function start () {
 	fi
 	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null &   
 	
-	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+	if [  -f "/etc/systemd/system/tor.service" ]; then
 		systemctl start tor
 	fi
 	
@@ -144,7 +144,9 @@ function stop_nonet () {
 	asciilogo
 	checkifinstalled
  	echo -e "\n${RED}[+]${NC} Stopping services\n"
-	systemctl stop tor
+	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+		systemctl stop tor
+	fi
 	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
@@ -159,7 +161,9 @@ function stop_nonet () {
 function stop () {
 	asciilogo
 	checkifinstalled
-	systemctl stop tor
+	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+		systemctl stop tor
+	fi
 	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
