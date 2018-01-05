@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.08-beta"
+version="1.09-beta"
 
 clear
 CYAN='\e[34m'
@@ -434,7 +434,7 @@ function vpn_status () {
 		if hash geoiplookup 2>/dev/null; then
 			echo -e "Country:\t$(geoiplookup $currentip | sed -n 1p | sed 's/.*, //')"
 		else
-			echo -e "Country:\t$(curl -s http://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+			echo -e "Country:\t$(curl -s https://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 		fi
 	fi
 	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait\n"
