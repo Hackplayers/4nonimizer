@@ -164,7 +164,6 @@ function stop () {
 	if [  ! -f "/etc/systemd/system/4non.service" ]; then
 		systemctl stop tor
 	fi
-	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	echo -e "\n${GREEN}Tunnel interfaces have been stopped!!!${NC}\n"
@@ -455,7 +454,7 @@ function vpn_status () {
 	  if [ "$key" == "T" ]; then	
 		echo  -e "\nTOR (using proxychains):"
 		echo -e "IP: \t\t$(proxychains  curl -s ipecho.net/plain 2> /dev/null | sed -n '2p')"
-		echo -e "Country:\t$(proxychains  curl -s http://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		echo -e "Country:\t$(proxychains  curl -s https://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p')"
 		echo -e "\ndone!\n"
 		break
 	  fi
