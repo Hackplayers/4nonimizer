@@ -147,7 +147,7 @@ function stop_nonet () {
 	if [  ! -f "/etc/systemd/system/4non.service" ]; then
 		systemctl stop tor
 	fi
-	ps -uax | grep 4nonimizer | awk '{print $2}' | xargs kill -9
+	ps -uax | grep "log-vpn" | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	#ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) down
@@ -164,6 +164,7 @@ function stop () {
 	if [  ! -f "/etc/systemd/system/4non.service" ]; then
 		systemctl stop tor
 	fi
+	ps -uax | grep "log-vpn" | awk '{print $2}' | xargs kill -9 2> /dev/nul
 	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
 	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
 	echo -e "\n${GREEN}Tunnel interfaces have been stopped!!!${NC}\n"
