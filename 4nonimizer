@@ -2,7 +2,7 @@
 # Authors: vicente motos & carlos antonini
 
 function asciilogo {
-version="1.09-beta"
+version="1.10"
 
 clear
 CYAN='\e[34m'
@@ -653,6 +653,8 @@ function locate_offline () {
 				tocontinentcode
 				if [ "$provider" == "nordvpn" ]; then
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u | awk '{print toupper($0)}');
+				elif [ "$provider" == "airvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
 				elif [ "$provider" == "vyprvpn" ]; then
 					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sort -u);
 				elif [ "$provider" == "ipvanish" ]; then
@@ -877,7 +879,7 @@ function location () {
 		
      		;;
 
-		ipvanish)
+     		ipvanish)
 		
 		num=0
 			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
@@ -895,6 +897,49 @@ function location () {
 			array=()
 			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
 			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+                                do
+				countrycode=$(echo $lista)
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;    
+
+		airvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista)
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
                                 do
 				countrycode=$(echo $lista)
 				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
