@@ -68,37 +68,45 @@ Usage: 4nonymizer **\<parameter\>**
 
 Currently it supports the following VPN providers:
 
-\- HideMyAss <https://www.hidemyass.com/>
+\- 7Proxies <https://www.7proxies.com/> 
 
-\- TorGuard <https://torguard.net/>
+\- AirVPN <https://airvpn.org/>  
 
-\- VPNBook (by default) <http://www.vpnbook.com/>
+\- Cryptostorm <https://cryptostorm.is/>  
 
-\- VPNGate <http://www.vpngate.net/en/>
+\- Cyberghost <https://www.cyberghostvpn.com/en_US/>  
 
-\- VPNMe <https://www.vpnme.me/>
+\- ExpressVPN <https://www.expressvpn.com>  
 
-\- VPNKeys <https://www.vpnkeys.com/>
+\- FreeVPN <https://freevpn.me/>  
 
-\- FreeVPN <https://freevpn.me/>
+\- HideMyAss <https://www.hidemyass.com/>  
 
-\- TunnelBear <https://www.tunnelbear.com/>
-
-\- Cryptostrom <https://cryptostorm.is/>
+\- IpPVanish <https://www.ipvanish.com/>  
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://www.slickvpn.com>  
+\- NordVPN <https://nordvpn.com>  
 
-\- 7Proxies <https://www.7proxies.com/>  
+\- ProntonVPN <https://protonvpn.com/>  
+
+\- SlickVPN <https://www.slickvpn.com>   
 
 \- StrongVPN <https://strongvpn.com/>  
 
-\- NordVPN <https://nordvpn.com>  
+\- TorGuard <https://torguard.net/>  
+
+\- TunnelBear <https://www.tunnelbear.com/>  
+
+\- VPNBook (por defecto) <http://www.vpnbook.com/>  
+
+\- VPNGate <http://www.vpngate.net/en/>  
+
+\- VPNKeys <https://www.vpnkeys.com/>  
+
+\- VPNMe <https://www.vpnme.me/>  
 
 \- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
-
-\- ExpressVPN <https://www.expressvpn.com>  
 
 # Install a new VPN
 
@@ -168,6 +176,10 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.04-beta | .locateit | 22/12/2016
  1.05-beta | .encrypting | 03/01/2017  
  1.06-beta | .1st-trial | 18/01/2017  
+ 1.07-beta | .noname | 03/05/2017  
+ 1.08-beta | .falcon | 15/08/2017  
+ 1.09-beta | .rabbit | 09/11/2017  
+ 1.10 | .fresh_air| 27/02/2018   
  
 ¡4nonimize the world!
 
@@ -246,37 +258,45 @@ Usage: 4nonymizer **\<parameter\>**
 
 Actualmente se soportan los siguientes proveedores VPN:
 
-\- HideMyAss <https://www.hidemyass.com/>
+\- 7Proxies <https://www.7proxies.com/> 
 
-\- TorGuard <https://torguard.net/>
+\- AirVPN <https://airvpn.org/>  
 
-\- VPNBook (por defecto) <http://www.vpnbook.com/>
+\- Cryptostorm <https://cryptostorm.is/>  
 
-\- VPNGate <http://www.vpngate.net/en/>
+\- Cyberghost <https://www.cyberghostvpn.com/en_US/>  
 
-\- VPNMe <https://www.vpnme.me/>
+\- ExpressVPN <https://www.expressvpn.com>  
 
-\- VPNKeys <https://www.vpnkeys.com/>
+\- FreeVPN <https://freevpn.me/>  
 
-\- FreeVPN <https://freevpn.me/>
+\- HideMyAss <https://www.hidemyass.com/>  
 
-\- TunnelBear <https://www.tunnelbear.com/>
-
-\- Cryptostrom <https://cryptostorm.is/>
+\- IpPVanish <https://www.ipvanish.com/>  
 
 \- PIA <https://www.privateinternetaccess.com/>
 
-\- SlickVPN <https://www.slickvpn.com>  
+\- NordVPN <https://nordvpn.com>  
 
-\- 7Proxies <https://www.7proxies.com/>  
+\- ProntonVPN <https://protonvpn.com/>  
+
+\- SlickVPN <https://www.slickvpn.com>   
 
 \- StrongVPN <https://strongvpn.com/>  
 
-\- NordVPN <https://nordvpn.com>  
+\- TorGuard <https://torguard.net/>  
+
+\- TunnelBear <https://www.tunnelbear.com/>  
+
+\- VPNBook (por defecto) <http://www.vpnbook.com/>  
+
+\- VPNGate <http://www.vpngate.net/en/>  
+
+\- VPNKeys <https://www.vpnkeys.com/>  
+
+\- VPNMe <https://www.vpnme.me/>  
 
 \- Vyprvpn <https://www.goldenfrog.com/es/vyprvpn>  
-
-\- ExpressVPN <https://www.expressvpn.com>  
 
 # Instalar una nueva VPN
 
@@ -348,6 +368,10 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.04-beta | .locateit | 22/12/2016
  1.05-beta | .encrypting | 03/01/2017  
  1.06-beta | .1st-trial | 18/01/2017  
+ 1.07-beta | .noname | 03/05/2017  
+ 1.08-beta | .falcon | 15/08/2017  
+ 1.09-beta | .rabbit | 09/11/2017  
+ 1.10 | .fresh_air| 27/02/2018   
  
 ¡4nonimiza el mundo!
 
