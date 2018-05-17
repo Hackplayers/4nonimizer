@@ -84,11 +84,13 @@ Currently it supports the following VPN providers:
 
 \- IpPVanish <https://www.ipvanish.com/>  
 
-\- PIA <https://www.privateinternetaccess.com/>
-
 \- NordVPN <https://nordvpn.com>  
 
+\- PIA <https://www.privateinternetaccess.com/>  
+
 \- ProntonVPN <https://protonvpn.com/>  
+
+\- Proxy.sh <https://proxy.sh/>  
 
 \- SlickVPN <https://www.slickvpn.com>   
 
@@ -165,6 +167,8 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 \- devenir anonyme sur kali linux (4nonimizer) <https://www.youtube.com/watch?v=Y3puD1Bw3xA>  
 \- Anonymizer - How To Hide Your IP address on Kali Linux 2016.2 (Change IP) <https://www.youtube.com/watch?v=MNdQD0DCG0A>  
 \- Become Anonymous on kali linux 2016.2 <https://www.youtube.com/watch?v=IFnhm-rrnEg>  
+\- Auto Hide IP with 4nonimizer on KALI Linux 2017 <https://www.youtube.com/watch?v=HgqZCm8Wdvw> 
+\- Kali Linux - 4nonimizer | Surf Anonymously <https://www.youtube.com/watch?v=_mOUQBv4sWs>  
 
 # Versions
 
@@ -180,6 +184,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.08-beta | .falcon | 15/08/2017  
  1.09-beta | .rabbit | 09/11/2017  
  1.10 | .fresh_air| 27/02/2018   
+ 1.11 | .shhh| 17/05/2018   
  
 ¡4nonimize the world!
 
@@ -274,11 +279,13 @@ Actualmente se soportan los siguientes proveedores VPN:
 
 \- IpPVanish <https://www.ipvanish.com/>  
 
-\- PIA <https://www.privateinternetaccess.com/>
-
 \- NordVPN <https://nordvpn.com>  
 
+\- PIA <https://www.privateinternetaccess.com/>
+
 \- ProntonVPN <https://protonvpn.com/>  
+
+\- Proxy.sh <https://proxy.sh/>  
 
 \- SlickVPN <https://www.slickvpn.com>   
 
@@ -357,6 +364,8 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 \- devenir anonyme sur kali linux (4nonimizer) <https://www.youtube.com/watch?v=Y3puD1Bw3xA>  
 \- Anonymizer - How To Hide Your IP address on Kali Linux 2016.2 (Change IP) <https://www.youtube.com/watch?v=MNdQD0DCG0A>  
 \- Become Anonymous on kali linux 2016.2 <https://www.youtube.com/watch?v=IFnhm-rrnEg>  
+\- Auto Hide IP with 4nonimizer on KALI Linux 2017 <https://www.youtube.com/watch?v=HgqZCm8Wdvw>  
+\- Kali Linux - 4nonimizer | Surf Anonymously <https://www.youtube.com/watch?v=_mOUQBv4sWs>  
 
 # Versiones
 
@@ -372,6 +381,7 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.08-beta | .falcon | 15/08/2017  
  1.09-beta | .rabbit | 09/11/2017  
  1.10 | .fresh_air| 27/02/2018   
- 
+ 1.11 | .shhh| 17/05/2018   
+  
 ¡4nonimiza el mundo!
 
