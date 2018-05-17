@@ -190,10 +190,13 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 
 # TODO
 
-\ - migrate to Python and make the tool multiplatform
-\ - make the code cleaner and more versatile
-\ - save the logs in a bd sqlite
-\ - standardize the names of the ovpn files: read the IP (remote line), get the country and rename the ovpn file accordingly
+\ - migrate to Python and make the tool multiplatform  
+
+\ - make the code cleaner and more versatile  
+
+\ - save the logs in a bd sqlite  
+
+\ - standardize the names of the ovpn files: read the IP (remote line), get the country and rename the ovpn file accordingly  
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SPANISH TRANSLATION
@@ -395,7 +398,11 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
 # TODO
 
 \- migrar a Python y hacer la herramienta multiplataforma  
+
 \- hacer el código más limpio y versátil  
+
 \- guardar los logs en una bd sqlite  
+
 \- estandarizar los nombres de los ficheros ovpn: leer la ip o el fqdn de la linea remote, obtener el país y renombrar el fichero ovpn en consecuencia  
+
 \- forzar la resoluciób DNS a través del túnel VPN  
