@@ -64,9 +64,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/proxysh/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/proxysh/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
@@ -449,7 +449,8 @@ function vpn_status () {
 		if hash geoiplookup 2>/dev/null; then
 			echo -e "Country:\t$(geoiplookup $currentip | sed -n 1p | sed 's/.*, //')"
 		else
-			echo -e "Country:\t$(curl -s https://whatismycountry.com/ | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+			country=`curl -s https://whatismycountry.com/ 2>/dev/null | grep "Thank you" | awk -F',' '{print $1}' | awk -F'"' '{print $5}' | awk -F'\' '{print $1}' | grep -Eio "m\s\w.*" | grep -Eio "\s.*"`
+			echo -e "Country:\t$country"
 		fi
 	fi
 	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait\n"
@@ -462,7 +463,8 @@ function vpn_status () {
 	  if [ "$key" == "T" ]; then	
 		echo  -e "\nTOR (using proxychains):"
 		echo -e "IP: \t\t$(proxychains  curl -s icanhazip.com 2> /dev/null | sed -n '2p')"
-		echo -e "Country:\t$(proxychains  curl -s https://whatismycountry.com/ 2>/dev/null | sed -n 's|.*,\(.*\)</h3>|\1|p')"
+		country=`curl -s https://whatismycountry.com/ 2>/dev/null | grep "Thank you" | awk -F',' '{print $1}' | awk -F'"' '{print $5}' | awk -F'\' '{print $1}' | grep -Eio "m\s\w.*" | grep -Eio "\s.*"`
+		echo -e "Country:\t$country"
 		echo -e "\ndone!\n"
 		break
 	  fi
