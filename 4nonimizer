@@ -64,9 +64,9 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
-	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/proxysh/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
-		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/proxysh/*.ovpn | shuf -n 1)
 	fi
 	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
 	# Avoid DNS leaks
@@ -76,8 +76,8 @@ function start () {
 		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
 	fi
 	if [ "$current_provider" == "proxysh" ]; then
- 		IFS=$'\n';for f in `find ./vpn/proxysh/`; do file=$(echo $f | tr [:blank:] '_'); [ -e $f ] && [ ! -e $file ] && mv "$f" $file;done;unset IFS
-		if ls ./vpn/proxysh/South_Korea* 1> /dev/null 2>&1; then
+ 		IFS=$'\n';for f in `find /opt/4nonimizer/vpn/proxysh/`; do file=$(echo $f | tr [:blank:] '_'); [ -e $f ] && [ ! -e $file ] && mv "$f" $file;done;unset IFS
+		if ls /opt/4nonimizer/vpn/proxysh/South_Korea* 1> /dev/null 2>&1; then
 			for f in South_Korea*; do mv "$f" "`echo $f | sed s/South_Korea/S.Korea/`"; done
 		fi
 	fi
