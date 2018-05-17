@@ -167,7 +167,7 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
 \- devenir anonyme sur kali linux (4nonimizer) <https://www.youtube.com/watch?v=Y3puD1Bw3xA>  
 \- Anonymizer - How To Hide Your IP address on Kali Linux 2016.2 (Change IP) <https://www.youtube.com/watch?v=MNdQD0DCG0A>  
 \- Become Anonymous on kali linux 2016.2 <https://www.youtube.com/watch?v=IFnhm-rrnEg>  
-\- Auto Hide IP with 4nonimizer on KALI Linux 2017 <https://www.youtube.com/watch?v=HgqZCm8Wdvw> 
+\- Auto Hide IP with 4nonimizer on KALI Linux 2017 <https://www.youtube.com/watch?v=HgqZCm8Wdvw>  
 \- Kali Linux - 4nonimizer | Surf Anonymously <https://www.youtube.com/watch?v=_mOUQBv4sWs>  
 
 # Versions
@@ -186,7 +186,14 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.10 | .fresh_air| 27/02/2018   
  1.11 | .shhh| 17/05/2018   
  
-¡4nonimize the world!
+¡4nonimize the world!  
+
+# TODO
+
+\ - migrate to Python and make the tool multiplatform
+\ - make the code cleaner and more versatile
+\ - save the logs in a bd sqlite
+\ - standardize the names of the ovpn files: read the IP (remote line), get the country and rename the ovpn file accordingly
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SPANISH TRANSLATION
@@ -385,3 +392,10 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
   
 ¡4nonimiza el mundo!
 
+# TODO
+
+\- migrar a Python y hacer la herramienta multiplataforma  
+\- hacer el código más limpio y versátil  
+\- guardar los logs en una bd sqlite  
+\- estandarizar los nombres de los ficheros ovpn: leer la ip o el fqdn de la linea remote, obtener el país y renombrar el fichero ovpn en consecuencia  
+\- forzar la resoluciób DNS a través del túnel VPN  
