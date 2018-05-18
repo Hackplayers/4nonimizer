@@ -15,6 +15,8 @@ This script is enabled as a service in systemd systems and uses a default vpn (V
 
 Since version 1.06 the dns resolution requests are done throught DnsCrypt (enable and disable with option enable_dns or disable_dns)
 
+Since version 1.12 the logs of connections vpn saved in sqlite in /logs/
+
 # Attention VPN Providers!  
 
 If you are a provider, you support OpenVPN and want your VPN to be integrated into 4nonimizer contact the developers at hackplayers @ ymail.com.
@@ -184,7 +186,8 @@ If the VPN provider allows automation of credential and/or .ovpn files getting, 
  1.08-beta | .falcon | 15/08/2017  
  1.09-beta | .rabbit | 09/11/2017  
  1.10 | .fresh_air| 27/02/2018   
- 1.11 | .shhh| 17/05/2018   
+ 1.11 | .shhh| 17/05/2018 
+ 1.12 | .sqliting| 18/05/2018
  
 ¡4nonimize the world!  
 
@@ -213,6 +216,8 @@ Es un script en bash cuyo objetivo es anonimizar (de momento) la IP pública con
 Este script se habilita como servicio en sistemas systemd y levanta la vpn por defecto (VPNBook) en el inicio del sistema.
 
 Desde la version 1.06 las resoluciones DNS se hacen a través de DnsCrypt (habilitarlo y desabilitarlo con la opcion enable_dns o disable_dns).
+
+Desde la versión 1.12 los registros de las conexiones vpn se guardan en sqlite en /logs/
 
 # ¡Atención proveedores de VPN!  
 
@@ -388,7 +393,8 @@ Si el proveedor correspondiente permite la automatización de la obtención de c
  1.08-beta | .falcon | 15/08/2017  
  1.09-beta | .rabbit | 09/11/2017  
  1.10 | .fresh_air| 27/02/2018   
- 1.11 | .shhh| 17/05/2018   
+ 1.11 | .shhh| 17/05/2018 
+ 1.12 | .sqliting| 18/05/2018
   
 ¡4nonimiza el mundo!
 
