@@ -2,7 +2,7 @@
 ![4nonimizer logo](./images/logo.png)  
 
 
-### I like the 4nonimizer, please help us with whatever you want!   
+### If you like the 4nonimizer, please help us with whatever you want!   
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=24U9T8TTDXA24&lc=US&item_name=4nonimizer&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
