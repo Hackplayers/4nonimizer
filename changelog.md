@@ -1,3 +1,5 @@
+\- **Version 1.06**  
+\* Add first trial provider 
 \- **Version 1.05**  
 \* Add DnsCrypt for dns resolution  
 \- **Version 1.04**  
