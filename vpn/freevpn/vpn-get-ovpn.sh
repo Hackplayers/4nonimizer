@@ -1,3 +1,3 @@
 #4uto
-wget http://freevpn.me/OpenVPN-Certificate-Bundle-Server1.zip 2> /dev/null
-unzip OpenVPN-Certificate-Bundle-Server1.zip && cd OpenVPN-Certificate-Bundle-Server1 && mv ./* ../ && cd ../ && rm ./OpenVPN-Certificate-Bundle-Server1.zip && rm -r ./OpenVPN-Certificate-Bundle-Server1
+wget https://freevpn.me/FreeVPN.me-OpenVPN-Bundle.zip --no-check-certificate 2> /dev/null
+unzip FreeVPN.me-OpenVPN-Bundle.zip && cd FreeVPN.me-OpenVPN-Bundle && find . -mindepth 2 -type f -print -exec mv {} ../ \;  && cd ../ && rm ./FreeVPN.me-OpenVPN-Bundle.zip && rm -r ./FreeVPN.me-OpenVPN-Bundle
