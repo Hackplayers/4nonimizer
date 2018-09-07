@@ -1,5 +1,5 @@
 #m4nual
-read -r -p "Do you have a login for this vpn provider [y/N] " response
+read -r -p "Visit https://www.vpnbook.com/#openvpn to get credentials. Do you want to continue [y/N] " response
 
 case $response in
     [yY][eE][sS]|[yY]) 
