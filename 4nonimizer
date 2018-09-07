@@ -64,6 +64,1444 @@ function start () {
 	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
 	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
 	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
+	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	if [ -z "$SELECTOVPN" ]; then
+		SELECTOVPN=$(ls /opt/4nonimizer/vpn/vpnbook/*.ovpn | shuf -n 1)
+	fi
+	current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+	# Avoid DNS leaks
+	#sed -i '10s/^/block-outside-dns\n/' /opt/4nonimizer/vpn/vpnbook/*.ovpn
+	# providers which use certificates	
+	if [ "$current_provider" == "vpnbook" ]; then
+		sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/7proxies/*.ovpn
+	fi
+	if [ "$current_provider" == "proxysh" ]; then
+ 		IFS=$'\n';for f in `find /opt/4nonimizer/vpn/proxysh/`; do file=$(echo $f | tr [:blank:] '_'); [ -e $f ] && [ ! -e $file ] && mv "$f" $file;done;unset IFS
+		if ls /opt/4nonimizer/vpn/proxysh/South_Korea* 1> /dev/null 2>&1; then
+			for f in South_Korea*; do mv "$f" "`echo $f | sed s/South_Korea/S.Korea/`"; done
+		fi
+	fi
+	cd /opt/4nonimizer/vpn/$current_provider/ ; nohup openvpn $SELECTOVPN 2>/dev/null &   
+	
+	if [  -f "/etc/systemd/system/tor.service" ]; then
+		systemctl start tor
+	fi
+	
+	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	while [ -z $comprobacion ] ; do
+		for i in {0..1..30}; 
+			do echo -en "."; 
+			((count1=count1+1));  
+			if [ $count1 -eq 30 ];  then
+				clear
+				echo -ne "\n${RED}[+]${NC} There is a problem starting openvpn. Please, check nohup.out for details\n\n"
+				tail -n 30 /opt/4nonimizer/vpn/$current_provider/nohup.out
+				echo ""
+				exit 1
+			fi
+			sleep 1;  
+		done
+		comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	done
+	count2=5
+	until [ $count2 -le 0 ]
+	do
+	clear
+	asciilogo
+	echo -ne "\n${GREEN}[+]${NC} Enter \"T\" if you want to log all IPs used through TOR (using proxychains) or wait $count2 secs for logging only VPN ips..." 
+        ((count2--))
+	read -s -n 1 -t 1 key
+
+	  if [ $count2 -eq 0 ]
+	    then
+		clear
+		asciilogo
+		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN)..."
+		IPVPN1=$(get_public_ip)
+		#echo -e "\n$IPVPN1 = `date`\n"  >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log # esto para que es??
+		start_logs_vpn
+		echo -ne "ok. \n"
+	       break
+	  fi     
+
+	  if [ "$key" == "T" ]; then
+		clear
+		asciilogo
+		echo -ne "\n${GREEN}[+]${NC} Starting logging process (VPN+TOR)..." 
+		IPVPN1=$(get_public_ip)
+		echo -e "$IPVPN1 = `date`\n" >> /opt/4nonimizer/logs/log-vpn-`date +'%d-%m-%Y'`.log
+		start_logs_vpn
+		start_logs_tor
+		echo -ne "ok. \n" && sleep 3
+		break
+	  fi
+	  
+	done
+	  
+
+	IP_provider2=$(get_public_ip)
+	while [ $IP_provider1 = $IP_provider2 ] ; do 
+		IP_provider2=$(get_public_ip)
+	done
+	vpn_status
+}
+
+function stop_nonet () {
+	asciilogo
+	checkifinstalled
+ 	echo -e "\n${RED}[+]${NC} Stopping services\n"
+	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+		systemctl stop tor
+	fi
+	ps -uax | grep "log-vpn" | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9
+	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+	#ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) down
+	ifconfig $(ls /sys/class/net/ | grep -E '^wl') down 2> /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^en') down 2> /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth') down 2> /dev/null
+	echo -e "\n${RED}[+]${NC} Your network interfaces have been shutdown.\n"
+
+}
+
+function stop () {
+	asciilogo
+	checkifinstalled
+	if [  ! -f "/etc/systemd/system/4non.service" ]; then
+		systemctl stop tor
+	fi
+	ps -uax | grep "log-vpn" | awk '{print $2}' | xargs kill -9 2> /dev/nul
+	ps -aux | grep openvpn | awk '{print $2}' | xargs kill -9 2> /dev/null
+	ifconfig $(ifconfig | egrep -io "tun\w") down 2> /dev/null
+	echo -e "\n${GREEN}Tunnel interfaces have been stopped!!!${NC}\n"
+}
+
+function restart () {
+	stop
+	start
+}
+
+function install () {
+	asciilogo
+	if [  -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+		echo -e "\n${RED}[*]${NC} 4nonimizer is already installed. Perhaps do you want reinstalling or updating the app?\n"
+	exit 1
+	fi
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] ||  [ `lsb_release -i | awk '{print $3}'` = 4nonOS ] ||  [ `lsb_release -i | awk '{print $3}'` = neon ]  || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] || [ `lsb_release -i | awk '{print $3}'` = Parrot ] || [ `lsb_release -i | awk '{print $3}'` = Raspbian ] || [ `lsb_release -i | awk '{print $3}'` = LinuxMint ]; then
+		#echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		#apt-get update
+		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
+		apt-get install geoip-bin geoip-database curl whois openvpn easy-rsa libcurl4-gnutls-dev dnscrypt-proxy librtmp-dev proxychains tor bzip2 nmap dos2unix unzip sqlite3
+	else if  [ `lsb_release -i | awk '{print $3}'` = ManjaroLinux ] || [ `lsb_release -i | awk '{print $3}'` = Arch ] || [ `lsb_release -i | awk '{print $3}'` = antergos ] ; then
+		#echo -e "\n${GREEN}[+]${NC} Updating the system...\n"
+		#pacman -Syu
+		echo -e "\n${GREEN}[+]${NC} Installing dependences...\n"
+		pacman -S --noconfirm geoip-bin geoip-database curl whois openvpn easy-rsa proxychains-ng tor bzip2 nmap dos2unix unzip dnscrypt-proxy sqlite3
+	else
+		echo ""
+		echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+		exit 1
+		fi     
+	fi
+	
+	echo -e "\n${GREEN}[+]${NC} Installing and linking the init service...\n"
+	cp -r ../4nonimizer /opt/
+	ln -svf /opt/4nonimizer/4nonimizer /usr/bin/4nonimizer
+	chmod +x /opt/4nonimizer/vpn/*/*.sh	
+	mkdir /opt/4nonimizer/logs 2> /dev/null
+	cp /opt/4nonimizer/4non.service /etc/systemd/system/
+	chmod +x /etc/systemd/system/4non.service
+	systemctl enable tor 
+	systemctl start tor
+	systemctl enable 4non.service
+
+        for i in {0..5..1}; do echo -en "."; sleep 1;  done
+	count=5
+	until [ $count -le 0 ]
+	do
+	asciilogo
+	echo -ne "\n${GREEN}[+]${NC} Enter \"A\" if you want to update all vpn profiles, or wait $count secs to update only the default one (vpnbook)..." 
+        ((count--))
+	read -s -n 1 -t 1 key
+
+	  if [ $count -eq 0 ]
+	    then
+		if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+			echo -e "\n${GREEN}[+]${NC} Obtaining Credentials and config files of default vpn (vpnbook)\n"
+	        	cd /opt/4nonimizer/vpn/vpnbook && ./vpn-get-ovpn.sh && ./vpn-get-pass.sh
+		else
+		  	echo "You do NOT have Internet connection. Abort!"
+			exit
+		fi
+	       break
+	  fi     
+
+	  if [ "$key" == "A" ]; then
+		clear
+		asciilogo
+		vpn_list
+		echo -e "\n${GREEN}[+]${NC} Preparing update\n"
+		for i in {0..7..1}; do echo -en "."; sleep 1;  done
+		echo -e "\n${GREEN}[+]${NC} Updating all vpn profiles...\n"
+		update_vpns
+		break
+	  fi
+
+	done
+	
+	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
+	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/*/*.ovpn
+	asciilogo
+	echo -e "\n${GREEN}[+]${NC} 4nonimizer has been installed. Use '4nonimizer start' or '4nonimizer help'.\n"
+}
+
+function update_vpns () {
+	asciilogo
+	checkifinstalled
+	num=0
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			num=`expr $num + 1`
+			echo -e "\n${GREEN}[+]${NC} Obtaining credentials for provider #$num: $lista\n"
+			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-pass.sh
+			echo -e "\n${GREEN}[+]${NC} Obtaining available ovpn files for provider #$num: $lista\n"
+			cd /opt/4nonimizer/vpn/$lista && ./vpn-get-ovpn.sh
+			LISTADO[$num]=$lista
+	done
+	 echo -e "\n${Green} All VPNs have been configured\n"
+	 echo -e "\n${Red} Consider check availability of provider nodes executing '4nonimizer test_availability'\n"
+
+}
+
+function vpn_list () {
+	num=0
+	echo -e "\n${Green} List of available VPN providers\n"
+	autokey="#4uto"
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			num=`expr $num + 1`
+			fileovpns=$(head -n1 /opt/4nonimizer/vpn/$lista/vpn-get-ovpn.sh)
+			filecreds=$(head -n1 /opt/4nonimizer/vpn/$lista/vpn-get-pass.sh)
+			filetrial="/opt/4nonimizer/vpn/$lista/trialnote.txt"
+			cd /opt/4nonimizer/vpn/$lista
+			if  [ "$autokey" == "$fileovpns" ] && [ "$autokey" == "$filecreds" ] ; then
+				echo "["$num"] - "$lista "(Auto-get OVPN) (Auto-pass Login)"
+			elif [ "$autokey" == "$filecreds" ] ; then
+				echo "["$num"] - "$lista "(Auto-pass Login)"
+			elif [ "$autokey" == "$fileovpns" ] ; then
+				echo "["$num"] - "$lista "(Auto-get OVPN)"
+			elif [ -f $filetrial ]; then
+				trialtime=$(head -n1 /opt/4nonimizer/vpn/$lista/trialnote.txt)
+				echo "["$num"] - "$lista "(TRIAL for $trialtime)"
+			else
+				echo "["$num"] - "$lista 
+			fi
+			LISTADO[$num]=$lista
+	done
+	}
+
+function change_provider () {
+	asciilogo
+	checkifinstalled
+	if [ ! -d "/opt/4nonimizer/vpn/" ]; then
+		echo -e "\n${RED} Install 4nonimizer first! (./4nonimizer install)\n${NC}"
+	else				
+		current_provider=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+		echo -e "\n${GREEN} Currently you're using the $current_provider provider\n${NC}"
+		echo -e "\n${GREEN} Select the new VPN provider to change\n${NC}"
+		vpn_list
+		echo -en "\nNumber > "
+		read new
+		files=$(ls /opt/4nonimizer/vpn/${LISTADO[$new]}/*.ovpn 2> /dev/null | wc -l)
+		if [ "$files" = "0" ] ; then
+			echo -e "\n${RED}[*]${NC} The provider does not exist or there are not config files for the requested provider. Please, use '4nonimizer update_vpns' first.\n"
+			exit 1
+		fi
+		if [ $current_provider = ${LISTADO[$new]} ] ; then
+			echo -e "\n${RED}You cannot change to the same provider. If you want to change only the ip use '4nonymizer change_ip'${NC}\n"
+			exit 1
+		fi
+		if [ "$new" -le "$num" ] ; then
+			old=`cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}'`
+			echo ""
+			echo -e "${GREEN}[+]${NC} Changing vpn $old to ${LISTADO[$new]} ..."
+			sed -i '67 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '69 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sed -i '71 s/'$old'/'${LISTADO[$new]}'/g' /opt/4nonimizer/4nonimizer
+			sleep 1
+			stop
+			IP_provider1=$(get_public_ip)
+			sleep 3
+			start
+			for i in {0..5..1}; do echo -en "."; sleep 1;  done
+			IP_provider2=$(get_public_ip)
+			while [ $IP_provider1 = $IP_provider2 ] ; do 
+				IP_provider2=$(get_public_ip)
+ 			done
+			echo -e "\n${GREEN}[+]${NC} Done!\n"
+		else
+			echo -e "\n${GREEN}[+]${NC} Invalid Option!\n"
+		fi
+	fi
+}
+
+function change_ip () {
+	asciilogo
+	checkifinstalled
+	killall openvpn
+	#SHUF_OVPN=$(ls *.ovpn | shuf -n 1 )
+	cd /opt/4nonimizer/vpn/$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')/ ; nohup openvpn $(ls *.ovpn | shuf -n 1 ) 2> /dev/null &  	
+	echo -e "\n${GREEN}[+]${NC} Changing vpn IP Address ...\n"
+	IP_provider1=$(get_public_ip)
+	for i in {0..5..1}; do echo -en "."; sleep 1;  done
+	systemctl start 4non.service
+	IP_provider2=$(get_public_ip)
+	while [ $IP_provider1 = $IP_provider2 ] ; do 
+		IP_provider2=$(get_public_ip)
+	done
+        vpn_status
+}
+
+function uninstall () {
+	asciilogo
+	checkifinstalled
+
+	echo -e "\n${GREEN}[+]${NC} Stopping and disabling 4non & tor services\n"
+	systemctl stop 4non.service
+	systemctl disable 4non.service
+	systemctl stop tor
+	systemctl disable tor
+	
+	echo -e "\n${GREEN}[+]${NC} Deleting /opt/4nonimizer dir\n"
+	rm -rf /etc/systemd/system/4non.service
+	rm -rfv /opt/4nonimizer >& /dev/null
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5
+	echo -e "${GREEN}[+]${NC} Done! , Bye!\n"
+}
+
+function reinstall () {
+	stop
+	uninstall
+	cd /opt/
+	git clone https://github.com/Hackplayers/4nonimizer.git
+	install
+}
+
+function start_logs_vpn () {
+	SECS=300
+	sleep 3
+	#cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.db$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null	
+	while true; do 
+		country=$(curl -s https://whatismycountry.com/ 2>/dev/null | grep "Thank you" | awk -F',' '{print $1}' | awk -F'"' '{print $5}' | awk -F'\' '{print $1}' | grep -Eio "m\s\w.*" | grep -Eio "\s.*")
+		IPVPN2=$(get_public_ip)
+		if [ "$IPVPN1" == "$IPVPN2" ] ; then
+			if [ -f /opt/4nonimizer/logs/logs-vpn-$(date +%d-%m-%Y).db ] ; then
+				cd /opt/4nonimizer/logs/; sqlite3 logs-vpn-$(date +%d-%m-%Y).db "insert into tdate (date,country,ip,provider) values ('$(date +%a-%b-%y-%H:%M:%S-%Z-%Y)','$(echo $country)','$(get_public_ip)','$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')')"
+				sleep $SECS
+				IPVPN1=$(echo $IPVPN2)
+			else
+				cd /opt/4nonimizer/logs/; sqlite3 logs-vpn-$(date +%d-%m-%Y).db "Create table tdate (id INTEGER PRIMARY KEY, date TEXT, country TEXT, ip TEXT, provider TEXT);"
+				cd /opt/4nonimizer/logs/; sqlite3 logs-vpn-$(date +%d-%m-%Y).db "insert into tdate (date,country,ip,provider) values ('$(date +%a-%b-%y-%H:%M:%S-%Z-%Y)','$(echo $country)','$(get_public_ip)','$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')')"
+				sleep $SECS
+			fi
+
+		fi
+	done &
+}
+
+function start_logs_tor () {
+	SECS=300
+	sleep 5
+	IPTOR=$(proxychains curl icanhazip.com 2> /dev/null)
+	cd /opt/4nonimizer/logs; ls /opt/4nonimizer/logs/ | egrep -v "`date "+%d-%m-%Y"`.log$" | egrep -v "*.bz2" | xargs bzip2 2> /dev/null
+	while true;do echo $IPTOR = `date` >> /opt/4nonimizer/logs/log-tor-`date +'%d-%m-%Y'`.log && sleep $SECS ; done &
+}
+
+function update_app () {
+	asciilogo
+	echo -e "\n${RED}[*]${NC} Updating repository from Git\n"
+	cd /opt/4nonimizer/ ; git pull origin master;
+	
+	packages_array=( curl whois openvpn easy-rsa proxychains tor bzip2 nmap dos2unix unzip dnscrypt-proxy )
+	echo -e "\n${RED}[*]${NC} Checking if exist new packages in the system:"
+	for i in "${packages_array[@]}"
+	do
+		if ! [ -x "$(command -v $i)" ]; then
+				if which pacman >/dev/null; then
+					pacman -S $i
+				else
+					apt-get install $i
+				fi
+		else
+			echo -en "$i "
+		fi
+	done
+	echo -e "\n\n${GREEN}[*]${NC} 4nonimizer has been updated to version $version\n"
+}
+
+function vpn_status () {
+	asciilogo
+	checkifinstalled	
+	echo -e "\n${GREEN}[+]${NC} We're going to confirm if your browsing IP has changed..."
+	echo -e "\n${GREEN}[*]${NC} Checking IP assigned:\n"
+	comprobacion=$(ifconfig | grep tun | awk '{print $1}')
+	if [ -z "$comprobacion" ] ;then
+		echo -e "\n${RED}[*]${NC} You're NOT using a tunnel, probably your IP is not masked!!\n"
+		exit 1
+	else 
+		echo -e "VPN Provider: \t $(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')"
+		currentip=$(curl -s icanhazip.com)
+		echo -e "IP: \t\t$currentip"
+		if hash geoiplookup 2>/dev/null; then
+			echo -e "Country:\t$(geoiplookup $currentip | sed -n 1p | sed 's/.*, //')"
+		else
+			country=`curl -s https://whatismycountry.com/ 2>/dev/null | grep "Thank you" | awk -F',' '{print $1}' | awk -F'"' '{print $5}' | awk -F'\' '{print $1}' | grep -Eio "m\s\w.*" | grep -Eio "\s.*"`
+			echo -e "Country:\t$country"
+		fi
+	fi
+	echo -e "\n${WHITE} [-]${NC} Enter \"T\" if you want to check also IP through TOR (using proxychains), or wait\n"
+	count=3	
+	until [ $count -le 0 ]
+	do
+	echo -n "."
+        ((count--))
+	read -s -n 1 -t 1 key  
+	  if [ "$key" == "T" ]; then	
+		echo  -e "\nTOR (using proxychains):"
+		echo -e "IP: \t\t$(proxychains  curl -s icanhazip.com 2> /dev/null | sed -n '2p')"
+		country=`curl -s https://whatismycountry.com/ 2>/dev/null | grep "Thank you" | awk -F',' '{print $1}' | awk -F'"' '{print $5}' | awk -F'\' '{print $1}' | grep -Eio "m\s\w.*" | grep -Eio "\s.*"`
+		echo -e "Country:\t$country"
+		echo -e "\ndone!\n"
+		break
+	  fi
+
+	if [ $count -eq 0 ]
+	    then
+			echo -e "done!\n"
+			#echo -e "DNSCrypt:\n$(nslookup www.google.es | awk 'NR==1,NR==2')\n"
+			break
+	fi
+	done
+}
+
+function autocom ()
+{
+  # Execute manually "source /opt/4nonimizer/4nonimizer" to activate autocomplete parameters function or edit your .bashrc file adding the line
+  local cur
+
+  COMPREPLY=()
+  cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+    *)
+    COMPREPLY=( $( compgen -W 'start stop stop_nonet install reinstall uninstall change change_ip restart update_vpns update_app vpn_status help' $cur ));;
+  esac
+
+  return 0
+}
+
+function privoxy ()
+{
+	asciilogo
+	echo -e "\n${RED}[*]THIS FUNCTIONALITY IS BETA MAY CONTAIN ERRORS${NC}\n"
+	checkifinstalled
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
+		if [  -f "/etc/privoxy/config" ]; then
+			/usr/sbin/privoxy /etc/privoxy/config
+			systemctl enable privoxy.service
+			netstat -putona | grep -v grep | grep privoxy --color
+			sed -i '/forward-socks5t \/ 127.0.0.1:9050 ./d' /etc/privoxy/config
+			sed -i '$a forward-socks5t / 127.0.0.1:9050 .' /etc/privoxy/config
+		else
+			apt-get install privoxy
+			/usr/sbin/privoxy /etc/privoxy/config
+			systemctl enable privoxy.service
+			netstat -putona | grep -v grep | grep privoxy --color
+			sed -i '/forward-socks5t \/ 127.0.0.1:9050 ./d' /etc/privoxy/config
+			sed -i '$a forward-socks5t / 127.0.0.1:9050 .' /etc/privoxy/config
+		fi
+	else
+                echo ""
+                echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+                exit 1
+        fi
+}
+
+function proxychains4 () 
+{
+	asciilogo
+	checkifinstalled
+	if [ `lsb_release -i | awk '{print $3}'` = Kali ] || [ `lsb_release -i | awk '{print $3}'` = Ubuntu ] || [ `lsb_release -i | awk '{print $3}'` = Debian ] ; then
+	echo -e "\n${GREEN}[!]${NC}Uninstall Proxychains3\n"
+	apt-get autoremove proxychains --purge
+	echo -e "\n${GREEN}[!]${NC}Installing Proxychains4\n"
+	mkdir /opt/4nonimizer/dependences && cd /opt/4nonimizer/dependences
+	git clone https://github.com/rofl0r/proxychains-ng.git	
+	cd proxychains-ng 
+	./configure --prefix=/usr --sysconfdir=/etc
+	make
+	make install
+	make install-config
+	mv /usr/bin/proxychains4 /usr/bin/proxychains
+	echo -e "\n${GREEN}[!]${NC}Done!\n"
+	else
+		echo ""
+                echo -e "\n${RED}[*]${NC} Your distro is not supported\n"
+                exit 1
+	fi
+}
+
+function browser () 
+{
+	asciilogo
+	checkifinstalled
+	privoxy
+	cd /opt/4nonimizer/profiles/
+	systemctl start tor
+	cp /opt/4nonimizer/profiles/rdpy967e.4nonimizer-profile.tar.gz /root/.mozilla/firefox/ 2> /dev/null
+	cp /opt/4nonimizer/profiles/profiles.ini /root/.mozilla/firefox/ 2> /dev/null
+	cd /root/.mozilla/firefox 2> /dev/null
+	tar xvzf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null 
+	rm -rf rdpy967e.4nonimizer-profile.tar.gz 2> /dev/null
+	firefox -P 4nonimizer-profile --private-window icanhazip.com 2> /dev/null
+}
+
+function test_availability () 
+{
+	asciilogo
+	checkifinstalled
+	num=0
+	for lista in $(ls /opt/4nonimizer/vpn/); 
+		do
+			cd /opt/4nonimizer/vpn/$lista
+			echo -e "\n${GREEN}[+]${NC} checking VPN peers availability of provider $lista\n"
+			if ! ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+				echo -e "\n${RED}[*]${NC} You do not have connection to Internet now! Please check it before testing ovpns.\n"
+				exit 1
+			fi
+			cd /opt/4nonimizer/vpn/$lista
+			dos2unix * &> /dev/null
+			for file in $(ls *.ovpn 2> /dev/null)
+			do
+				checkedprotocol=$(grep -v '#' $file | grep -m 1 proto | awk '{print $2}')
+				checkedip=$(grep -v '#' $file | grep -m 1 remote | awk '{print $2}')
+				checkedport=$(grep -v '#' $file | grep -m 1 remote | awk '{print $3}')
+				if [[ $checkedprotocol = *"tcp"* ]]
+				then
+				open=`nmap --version-light --min-rate 10000 -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+					rm $file
+				else
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+				fi
+				fi
+				if [[ $checkedprotocol = *"udp"* ]]
+				then
+				open=`nmap --version-light --min-rate 10000 -sU -p $checkedport $checkedip  | grep "$checkedport" | grep open`
+				if [ -z "$open" ]; then
+					echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is NOT available. The $file will be deleted."
+				        rm $file
+				else
+				        echo "OK! The peer $checkedip in port $checkedport/$checkedprotocol is available"
+			        fi
+				fi
+			done
+	done
+
+	 echo -e "\n${Green} The VPN peers availability have been checked\n"
+}
+
+function rename_ovpns_for_location () {
+			
+			num=0
+			array1=()
+			
+			RENAMEDFILES=$(ls /opt/4nonimizer/vpn/$provider/*renamed.ovpn 2> /dev/null | wc -l)
+		
+			if [ "$RENAMEDFILES" = "0" ] ; then
+			
+				echo -e "\n${RED}[*] Wait until the program finishes calculating the available countries and renaming files: ${NC}\n"
+
+				for lista in $(ls /opt/4nonimizer/vpn/$provider/*.ovpn);
+				do	
+					num=`expr $num + 1`
+					ip=`cat $lista | grep remote | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v '#'`
+					if [ -z "$ip" ]; then
+						ip=`cat $lista | grep -m 1 "remote " | grep -v '#' | awk {'print $2'}`
+						ip=$(dig +short $ip | shuf -n 1 | awk '{ print ; exit }' 2>/dev/null)
+					fi
+					#codecountry=$(curl ipinfo.io/$ip | grep country | awk -F  "\"" '{print $4}')
+					codecountry=$(whois $ip | awk -F':[ \t]+' 'tolower($1) ~ /^country$/ { print toupper($2) ;exit;}')
+					country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$codecountry -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}'| tr -d '[:space:]')
+					
+					if [ -z "$country" ] ; then country="unknown"; fi
+			
+					array1+=($country)
+					
+					mv "$lista" "${lista/\.ovpn/\-$country\-renamed\.ovpn}"
+					PAISES[$num]="${lista/\.ovpn/\-$country\-renamed\.ovpn}"
+					echo "${lista/\.ovpn/\-$country\-renamed\.ovpn}"			
+				done
+				
+				echo -en "${RED}Done! ${NC}\n\n"
+
+			else
+			
+				echo -e "\n${RED}[*] The ovpn files have already been renamed before. ${NC}\n"
+		
+			fi
+}
+
+function locate_offline () {
+			
+                        echo -en "\n\nNumber > "
+                        read new
+			
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "you're selected the continent ${CONT[$new]}"
+				continentname=${CONT[$new]}
+				if [[ "$continentname" == "unknown" ]]; then
+					/opt/4nonimizer/4nonimizer change_ip
+					break
+				fi
+				tocontinentcode
+				if [ "$provider" == "nordvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u | awk '{print toupper($0)}');
+				elif [ "$provider" == "airvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
+				elif [ "$provider" == "vyprvpn" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sort -u);
+				elif [ "$provider" == "ipvanish" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+				elif [ "$provider" == "proxysh" ]; then
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $1}' | sort -u);
+				else
+					lista=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+				fi
+
+				for l in $lista;
+                                do
+					if [ -n $l ]; then
+						if [ "$provider" == "vyprvpn" ] || [ "$provider" == "proxysh" ]; then				
+							l=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$5 == r' | awk  -F $'\t' '{print $1}' | sed 's/ //g' )
+						fi
+						continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$l -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+						if [ -n "$continentcode2" ]; then
+							if [[ "$continentcode" == "$continentcode2" ]]; then 
+								#echo $l
+								array2+=($l)
+							fi
+						fi
+					fi
+	
+				done	
+
+			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
+
+			if [ "$provider" == "proxysh" ]; then
+				countryselected=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countryselected -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+			fi
+
+			echo -e "\n\n${RED}[*] Select country: $countryselected ${NC}" && sleep 2
+
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep -i $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+				
+			else
+			echo "You've selected to use a specific country"
+			countryselected=${PAISES[$new]} 
+			if [[ "$countryselected" == "unknown" ]]; then
+				/opt/4nonimizer/4nonimizer change_ip
+				break
+			fi
+
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1 2>/dev/null)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+
+			fi
+}
+
+function locate_online () {
+			
+			rename_ovpns_for_location
+			
+			num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $(NF-1)}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				if [ -z "$lista" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$lista
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $(NF-1)}' | cut -d'.' -f1 | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		                        echo -en "\n\nNumber > "
+                        read new
+			
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "estas seleccionando continente ${CONT[$new]}"
+				continentname=${CONT[$new]}
+				if [[ "$continentname" == "unknown" ]]; then
+					/opt/4nonimizer/4nonimizer change_ip
+					break
+				fi
+				tocontinentcode
+				for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $(NF-1)}' | cut -d'.' -f1 | sort -u);
+                                do
+					continentcode2=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+
+					if [[ "$continentcode" == "$continentcode2" ]] ; then
+						array2+=($lista)
+					fi
+	
+				done	
+				
+			countryselected=$(for el in "${array2[@]}"; do echo $el; done | shuf | head -1)
+
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+				
+			else
+			echo "You've selected to use a specific country"
+			#echo ${PAISES[$new]} 						
+			#cd /opt/4nonimizer/vpn/$provider/ ; openvpn "$(ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)"
+			countryselected=${PAISES[$new]} 
+			if [[ "$countryselected" == "unknown" ]]; then
+				/opt/4nonimizer/4nonimizer change_ip
+				break
+			fi
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep ${PAISES[$new]} | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+
+			fi
+
+}
+
+function location () {
+	asciilogo
+	checkifinstalled
+	provider=$(cat /opt/4nonimizer/4nonimizer | awk 'NR==67' | awk -F';' '{print $1}' | awk -F'/' '{print $5}')
+	echo -e "\nVPN Provider: \t $provider\n"
+
+	case $provider  in
+                cyberghost)
+			locate_online
+                ;;
+                expressvpn)
+			locate_online
+                ;;
+                freevpn)
+			locate_online
+                ;;
+                protonvpn)
+			locate_online
+                ;;
+                proxysh)
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $1}' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				if [[ $lista == *"United"* ]]
+				then
+				  lista="United_Kingdom";
+				fi
+				if [[ $lista == *"Czech"* ]]
+				then
+				  lista="Czechia";
+				fi
+				if [[ $lista == *"Costa"* ]]
+				then
+				  lista="Costa_Rica";
+				fi
+				if [[ $lista == *"Hong"* ]]
+				then
+				  lista="Hong_Kong";
+				fi
+				if [[ $lista == *"Isle"* ]]
+				then
+				  lista="Isle_of_Man";
+				fi
+				if [[ $lista == *"New"* ]]
+				then
+				  lista="New_Zeland";
+				fi
+				if [[ $lista == *"South"* ]]
+				then
+				  lista="South_Africa";
+				fi
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $1}' | sort -u);
+                                do
+				if [[ $lista == *"United"* ]]
+				then
+				  lista="UnitedKingdom";
+				fi
+				if [[ $lista == *"U.S."* ]]
+				then
+				  lista="UnitedStates";
+				fi
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+
+		locate_offline
+
+                ;;
+                hidemyass)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;
+                vyprvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' -' '{print $1}' | cut -d'.' -f1 | sed 's/ //g' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'.' '{print $1}' | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;
+
+     		ipvanish)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista)
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $2}' | sort -u);
+                                do
+				countrycode=$(echo $lista)
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;    
+
+		airvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista)
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'-' '{print $1}' | sed 's/^.*\_//' | sort -u);
+                                do
+				countrycode=$(echo $lista)
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;    
+
+		nordvpn)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				countrycode=$(echo $lista | awk '{print toupper($0)}')
+				countryname=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+				country=$countryname
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | cut -c1-2 | sort -u);
+                                do
+				countrycode=$(echo $lista | awk '{print toupper($0)}')
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$countrycode -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+     		;;                        
+                torguard)
+			locate_online
+                ;;
+		tunnelbear)
+		       num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$lista
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		;;
+		vpnbook)
+		
+		locate_online
+		;;
+		7proxies)
+		
+		locate_online
+		;;
+		vpngate)
+		
+		num=0
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				country=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $5}')
+			        if [ -z "$country" ] ; then country="unknown"; fi
+                                echo  -ne "   ["$num"]-"$country
+                                PAISES[$num]=$lista
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F'_' '{print $2}' | cut -d'.' -f1 | sort -u);
+                                do
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$1 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+			
+		locate_offline
+		
+		;;
+		vpnkeys)
+		locate_online
+		;;
+		vpnme)
+		locate_online	
+		;;
+		cryptostorm)
+		locate_online
+		;;
+		slickvpn)
+		locate_online
+		;;
+		pia)
+			array_pais=()
+			echo -e "\n${RED}[*] Please, select the country from which you want to connect: ${NC}\n"
+                        for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $1}' | cut -d'.' -f1 | sort -u);
+                                do
+                                num=`expr $num + 1`
+				if [[ $lista == *"UK_"* ]]
+				then
+				  lista="UnitedKingdom";
+				fi
+				if [[ $lista == *"US_"* ]]
+				then
+				  lista="UnitedStates";
+				fi
+				if [[ $lista == *"CA_"* ]]
+				then
+				  lista="Canada";
+				fi
+				if [[ $lista == *"AU_"* ]]
+				then
+				  lista="Australia";
+				fi
+				if [ -z "$lista" ] ; then lista="unknown"; fi
+				array_pais+=($lista)
+			done
+
+			sorted_unique_countries=$(echo "${array_pais[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+			num=0				
+			 for i in ${sorted_unique_countries[@]}
+			 do 
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont_country+=($num)
+				COUN[$num]=$i
+
+			done
+			
+			array=()
+			echo -e "\n\n${RED}[*] or if you prefer select the continent: ${NC}\n"
+			 for lista in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | awk -F' ' '{print $1}' | cut -d'.' -f1 | sort -u);
+                                do
+				if [[ $lista == *"UK_"* ]]
+				then
+				  lista="UnitedKingdom";
+				fi
+				if [[ $lista == *"US_"* ]]
+				then
+				  lista="UnitedStates";
+				fi
+				if [[ $lista == *"CA_"* ]]
+				then
+				  lista="Canada";
+				fi
+				if [[ $lista == *"AU_"* ]]
+				then
+				  lista="Australia";
+				fi
+				continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$lista -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+				tocontinentname
+			        if [ -z "$continent" ] ; then country="unknown"; fi
+				array+=($continent)
+			done	
+
+			sorted_unique_continents=$(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+							
+			 for i in ${sorted_unique_continents[@]}
+			 do 	
+				num=`expr $num + 1`
+				echo  -ne "   ["$num"]-"$i
+				rangonumcont+=($num)
+				CONT[$num]=$i
+
+			done
+
+
+ 			echo -en "\n\nNumber > "
+                        read new
+			
+			if [[ " ${rangonumcont[@]} " =~ " ${new} " ]]; then
+				echo "estas seleccionando continente ${CONT[$new]}"
+				continentselected=${CONT[$new]}
+				for file in $(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn);
+                                do	
+
+					country=$(cd /opt/4nonimizer/vpn/$provider/; ls $file | awk -F'_' '{print $1}' | cut -d'.' -f1)
+
+					if [[ $country == *"UK"* ]]
+					then
+					  country="UnitedKingdom";
+					fi
+					if [[ $country == *"US"* ]]
+					then
+					  country="UnitedStates";
+					fi
+					if [[ $country == *"CA"* ]]
+					then
+					  country="Canada";
+					fi
+					if [[ $country == *"AU"* ]]
+					then
+					  country="Australia";
+					fi
+
+					continentcode=$(cat /opt/4nonimizer/countryInfo.txt | awk -v r=$country -F $'\t' '$5 == r' | awk  -F $'\t' '{print $9}')
+					tocontinentname
+	
+					#echo $file $country $continentcode $continent
+					if [ "$continent" == "$continentselected" ]; then
+						SELECTOVPN=$file
+						break
+					fi
+				done
+
+				echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+				sleep 3
+				restart
+				
+			else
+			echo "You've selected to use the specific country ${COUN[$new]}"
+			countryselected=${COUN[$new]} 
+			if [[ "$countryselected" == "unknown" ]]; then
+				/opt/4nonimizer/4nonimizer change_ip
+				break
+			fi
+
+			if [[ $countryselected == *"UnitedKingdom"* ]]
+				then
+				  countryselected="UK_";
+				fi
+				if [[ $countryselected == *"UnitedStates"* ]]
+				then
+				  countryselected="US_";
+				fi
+				if [[ $countryselected == *"Canada"* ]]
+				then
+				  countryselected="CA_";
+				fi
+				if [[ $countryselected == *"Australia"* ]]
+				then
+				  countryselected="AU_";
+				fi
+	
+			SELECTOVPN=$(cd /opt/4nonimizer/vpn/$provider/; ls *.ovpn | grep $countryselected | shuf -n 1)
+			echo -e "\n\n${RED}[*] 4nonimizer is going to use the $SELECTOVPN file. ${NC}\n"
+			sleep 3
+			restart
+
+			fi
+			
+		;;
+                *)
+			echo -e "Error!!"
+		;;              
+          esac 
+}
+
+tocontinentname(){
+
+case $continentcode in
+    "AF" )    continent="Africa"; ;; 
+    "AN" )    continent="Antarctica"; ;; 
+    "AS" )    continent="Asia"; ;; 
+    "OC" )    continent="Australia(Oceania)"; ;; 
+    "EU" )    continent="Europe"; ;; 
+    "NA" )    continent="NorthAmerica"; ;; 
+    "SA" )    continent="SouthAmerica"; ;; 
+    * )      continent="unknown"; ;; 
+esac
+	
+}
+
+tocontinentcode(){
+
+case $continentname in
+    "Africa" )    continentcode="AF"; ;; 
+    "Antarctica" )    continentcode="AN"; ;; 
+    "Asia" )    continentcode="AS"; ;; 
+    "Australia(Oceania)" )    continentcode="OC"; ;; 
+    "Europe" )    continentcode="EU"; ;; 
+    "NorthAmerica" )    continentcode="NA"; ;; 
+    "SouthAmerica" )    continentcode="SA"; ;; 
+    * )      continentcode="unknown"; ;; 
+esac
+	
+}
+
+enableboot(){
+	asciilogo
+	if [ -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then
+        	echo -e "\n${RED}[*]${NC} 4nonimizer is enable to boot!\n"
+	else 
+		echo -e "\n${RED}[*]${NC} Installing 4nonimizer for boot!\n"
+		systemctl enable 4non.service
+		 echo -e "\n${RED}[*]${NC} Done!\n"
+	fi 
+}
+
+disableboot(){
+        asciilogo
+	if [ -f "/etc/systemd/system/multi-user.target.wants/4non.service" ]; then 
+		echo -e "\n${RED}[*]${NC} Uninstalling 4nonimizer for boot!\n"
+		systemctl disable 4non.service 
+		echo -e "\n${RED}[*]${NC} Done!\n"
+	else 
+		echo -e "\n${RED}[*]${NC} 4nonimizer is not enabled in boot!\n"; 
+	fi	
+}
+
+disable_dns(){
+	echo -ne "\n${GREEN}[+]${NC} Stoping DnsCrypt Service...\n"
+	systemctl stop dnscrypt-proxy.service
+	systemctl stop dnscrypt-proxy.socket
+	echo "nameserver 8.8.8.8" > /etc/resolv.conf
+	echo -ne "\n${GREEN}[+]${NC} Done!\n"
+}
+
+enable_dns(){
+	echo -ne "\n${GREEN}[+]${NC} Starting DnsCrypt Service...\n"
+	if [ -f "/etc/systemd/system/multi-user.target.wants/dnscryp-proxy.service"  ]; then
+		systemctl restart dnscrypt-proxy
+		sleep 3
+		netstat -putona | egrep -e dnscrypt -e 53 | egrep -E 53 | awk '{print $4}' | sort -u | cut -d':' -f1 | awk '{print "nameserver "$1}' > /etc/resolv.conf
+	else
+		systemctl enable dnscrypt-proxy
+		systemctl start dnscrypt-proxy
+		sleep 3
+		netstat -putona | egrep -e dnscrypt -e 53 | egrep -E 53 | awk '{print $4}' | sort -u | cut -d':' -f1 | awk '{print "nameserver "$1}' > /etc/resolv.conf
+	fi
+	echo -ne "\n${GREEN}[+]${NC} Done!\n"
+	
+}
+
+# main exec
+asciilogo
+complete -F autocom -o default 4nonimizer
+
+if [ `id | egrep -io "uid=\w+" | awk -F'=' '{print $2}'` != 0 ] ; then
+	echo -e "\n${RED}[*]${NC} You aren't root , please execute the program with root permisions\n"
+else
+
+case $1 in
+	        start|stop|stop_nonet|install|reinstall|uninstall|change_provider|change_ip|restart|update_vpns|update_app|vpn_status|privoxy|proxychains4|browser|test_availability|location|disableboot|enableboot|enable_dns|disable_dns)
+		"$1" 
+		;;
+		help|-h|--help)
+		echo "Usage: 4nonymizer <parameter>"
+		echo -e "Example:  4nonimizer ${CYAN}install${NC}"
+		echo ""
+		echo -e "    ${CYAN}install${NC}:  Install the script in /opt/4nonimizer and in running services"
+		echo -e "    ${CYAN}uninstall${NC}: Disable run service and remove app directory"
+		echo -e "    ${CYAN}change_provider${NC}: Change VPN Provider"
+		echo -e "    ${CYAN}change_ip${NC}: Change IP from current VPN provider"
+		echo -e "    ${CYAN}vpn_status${NC}: Check IP and running VPN provider"
+		echo -e "    ${CYAN}update_vpns${NC}: Update all ovpn of VPNs"
+		echo -e "    ${CYAN}start${NC}: Init the 4nonimizer service"
+		echo -e "    ${CYAN}stop${NC}: Stop the 4nonimizer service"
+		echo -e "    ${CYAN}stop_nonet${NC}: Stop the 4nonimizer service and shutdown network interfaces"
+		echo -e "    ${CYAN}restart${NC}: Restart the 4nonimizer service"
+		echo -e "    ${CYAN}update_app${NC}: Update this program via git"
+		echo -e "    ${CYAN}privoxy${NC}: Install and configure privoxy on port 8118 (BETA)"
+		echo -e "    ${CYAN}proxychains4${NC}: Install and configure proxychains4 by default in the system"
+		echo -e "    ${CYAN}browser${NC}: Fire up a firefox browser with profile privoxy -> tor"
+		echo -e "    ${CYAN}test_availability${NC}: Check peers availability and delete ovpn file if the IP/service is unreachable"
+		echo -e "    ${CYAN}location${NC}: Now you can select a specific country or continent of the vpn peer"
+		echo -e "    ${CYAN}enableboot${NC}: You can enable service in boot"
+		echo -e "    ${CYAN}disableboot${NC}: You can disable service in boot"
+		echo -e "    ${CYAN}enable_dns${NC}: Enable dnscrypt service"
+		echo -e "    ${CYAN}disable_dns${NC}: Disable dnscrypt service"
+		echo -e "    ${CYAN}help${NC}: Help (this screen)"
+		
+		echo "" 
+		;;
+	esac
+
+fi
+	if ! check_ip_format "$PUBLIC_IP"; then
+	    echo "Could not obtain your public IP address";
+	    exit 1;
+	fi
+
+	echo $PUBLIC_IP
+}
+
+function start () {
+
+	IP_provider1=$(get_public_ip)
+	asciilogo
+	checkifinstalled
+	echo -e "\n${GREEN}[+]${NC} Your current IP is $IP_provider1...\n"
+	echo -e "\n${GREEN}[+]${NC} Starting 4nonimizer to hide your real IP...\n"
+	ifconfig $(ls /sys/class/net/ | grep -E '^eth|^en|^wl' | head -1) up && sleep 5	
+	sed -i '/auth-user-pass/d' /opt/4nonimizer/vpn/*/*.ovpn
 	sed -i "8iauth-user-pass pass.txt" /opt/4nonimizer/vpn/freevpn/*.ovpn
 	if [ -z "$SELECTOVPN" ]; then
 		SELECTOVPN=$(ls /opt/4nonimizer/vpn/freevpn/*.ovpn | shuf -n 1)
