@@ -1,3 +1,16 @@
-#4uto
-echo "vpnbook" > /opt/4nonimizer/vpn/vpnbook/pass.txt
-curl https://www.vpnbook.com/#openvpn 2> /dev/null | grep -E "Password" | awk '{print $2}' | cut -d'<' -f1 | sort -u >> /opt/4nonimizer/vpn/vpnbook/pass.txt
+#m4nual
+read -r -p "Do you have a login for this vpn provider [y/N] " response
+
+case $response in
+    [yY][eE][sS]|[yY]) 
+	read -p 'Username: ' uservar
+	stty -echo
+	read -p 'Password: ' passvar
+	stty echo
+	echo ""
+	echo $uservar > pass.txt && echo $passvar >> pass.txt
+        ;;
+    *)
+        exit 1
+        ;;
+esac
