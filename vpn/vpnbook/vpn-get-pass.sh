@@ -56,6 +56,13 @@ case $resp in
 	fi
 	sed -i 's///g' $workDir/pass.txt
 
+
+############
+# Clean Up #
+############
+rm -rf $tmpDir
+
+
 ###############
 # Finish Case #
 ##############
